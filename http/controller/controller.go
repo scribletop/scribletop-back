@@ -2,6 +2,6 @@ package controller
 
 import "github.com/gin-gonic/gin"
 
-type Controller interface{
+type Controller interface {
 	RegisterRoutes(router *gin.RouterGroup) ()
 }
