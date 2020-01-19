@@ -10,16 +10,17 @@ import (
 
 func main() {
 	c := config.Load()
-	db, err := database.Connect(c.Database)
-	if err != nil {
-		log.Fatalln("scribletop: could not connect to database: " + err.Error())
-	}
-	defer db.Close()
+	db := database.Initialize(c)
+	defer func() {
+		if err := db.Close(); err != nil {
+			log.Println("scribletop: db.Close: " + err.Error())
+		}
+	}()
 
 	r := gin.Default()
 	router.RegisterControllers(r)
 
 	if err := r.Run(); err != nil {
-		log.Fatalln("scribletop: could not run server: " + err.Error())
+		log.Fatalln("scribletop: r.run: " + err.Error())
 	}
 }

@@ -14,7 +14,7 @@ type Config struct {
 }
 
 func Load() Config {
-	config := Config{DatabaseConfig{"root", "password", "localhost", "scribletop"}}
+	config := Config{DatabaseConfig{"postgres", "password", "localhost", "scribletop"}}
 
 	if val := os.Getenv("DB_USERNAME"); val != "" {
 		config.Database.Username = val
