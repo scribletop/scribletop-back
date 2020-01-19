@@ -13,10 +13,9 @@ import (
 
 func main() {
 	c := config.Load()
-	l := zerolog.New(os.Stderr)
-	if c.Env == "local" {
-		l = log.Output(zerolog.ConsoleWriter{Out: os.Stderr})
-	}
+	config.Print(c)
+
+	l := createLogger(c)
 
 	db := database.Initialize(c, l.With().Str("component", "database").Logger())
 	defer func() {
@@ -35,4 +34,19 @@ func main() {
 	if err := r.Run(); err != nil {
 		log.Fatal().Err(err).Msg("Could not run server.")
 	}
+}
+
+func createLogger(c config.Config) zerolog.Logger {
+	l := zerolog.New(os.Stderr)
+	if c.Env == "local" {
+		l = log.Output(zerolog.ConsoleWriter{Out: os.Stderr})
+		zerolog.SetGlobalLevel(zerolog.InfoLevel)
+	} else {
+		zerolog.SetGlobalLevel(zerolog.WarnLevel)
+	}
+
+	if c.Debug {
+		zerolog.SetGlobalLevel(zerolog.DebugLevel)
+	}
+	return l
 }
