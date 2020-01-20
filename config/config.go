@@ -11,6 +11,7 @@ type DatabaseConfig struct {
 	Password string
 	Hostname string
 	Database string
+	Schema   string
 }
 
 type Config struct {
@@ -21,7 +22,7 @@ type Config struct {
 
 func Load() Config {
 	config := Config{
-		DatabaseConfig{"postgres", "password", "localhost", "scribletop"},
+		DatabaseConfig{"postgres", "password", "localhost", "scribletop", "public"},
 		"local",
 		false,
 	}
@@ -51,7 +52,19 @@ func Load() Config {
 		config.Database.Password = val
 	}
 
+	if val := os.Getenv("DB_SCHEMA"); val != "" {
+		config.Database.Schema = val
+	}
+
 	return config
+}
+
+func LoadTest(dbSchema string) Config {
+	return Config{
+		DatabaseConfig{"postgres", "password", "localhost", "scribletop", dbSchema},
+		"test",
+		false,
+	}
 }
 
 func Print(c Config) {

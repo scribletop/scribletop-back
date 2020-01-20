@@ -29,7 +29,7 @@ func main() {
 	r := gin.New()
 	r.Use(logger.SetLogger(logger.Config{Logger: &httpLogger}), gin.RecoveryWithWriter(l))
 
-	router.RegisterControllers(r)
+	router.RegisterControllers(r, db)
 
 	if err := r.Run(); err != nil {
 		log.Fatal().Err(err).Msg("Could not run server.")

@@ -1,6 +1,7 @@
 package database
 
 import (
+	"fmt"
 	"github.com/jmoiron/sqlx"
 	_ "github.com/lib/pq"
 	"github.com/markbates/pkger"
@@ -8,6 +9,7 @@ import (
 	"github.com/scribletop/scribletop-api/config"
 	"io/ioutil"
 	"os"
+	"strings"
 	"time"
 )
 
@@ -27,22 +29,25 @@ var migrationsTableExistsQuery = `
 SELECT EXISTS (
 	SELECT 1
 	FROM information_schema.tables
-	WHERE table_schema = 'public'
+	WHERE table_schema = $1
 		AND table_name = 'migrations'
 );
 `
 
 func Initialize(c config.Config, log zerolog.Logger) (db *sqlx.DB) {
-	log.Info().Msg("Connecting to database...")
+	log.Debug().Msg("Connecting to database...")
 
 	db, err := connect(c.Database)
 	if err != nil {
 		log.Fatal().Err(err).Msg("Cannot connect to database.")
 	}
 
+	db.MustExec("CREATE SCHEMA IF NOT EXISTS " + strings.Split(c.Database.Schema, ";")[0])
+	db.MustExec("SET SEARCH_PATH TO " + strings.Split(c.Database.Schema, ";")[0])
+
 	log.Info().Msg("Connected to database.")
 
-	if err := migrate(db, log); err != nil {
+	if err := migrate(db, log, c.Database.Schema); err != nil {
 		log.Fatal().Err(err).Msg("Could not execute migrations.")
 	}
 
@@ -52,20 +57,23 @@ func Initialize(c config.Config, log zerolog.Logger) (db *sqlx.DB) {
 }
 
 func connect(config config.DatabaseConfig) (*sqlx.DB, error) {
-	return sqlx.Connect(
-		"postgres",
-		"user="+config.Username+
-			" password="+config.Password+
-			" host="+config.Hostname+
-			" dbname="+config.Database+
-			" sslmode=disable")
+	dsn := fmt.Sprintf(
+		"user=%s password=%s host=%s sslmode=disable",
+		config.Username, config.Password, config.Hostname,
+	)
+
+	if config.Database != "" {
+		dsn += fmt.Sprintf(" dbname=%s", config.Database)
+	}
+
+	return sqlx.Connect("postgres", dsn)
 }
 
-func migrate(db *sqlx.DB, log zerolog.Logger) error {
-	log.Info().Msg("Looking for migrations table...")
+func migrate(db *sqlx.DB, log zerolog.Logger, schema string) error {
+	log.Debug().Msg("Looking for migrations table...")
 
 	var exists bool
-	err := db.Get(&exists, migrationsTableExistsQuery)
+	err := db.Get(&exists, migrationsTableExistsQuery, schema)
 	if err != nil {
 		return err
 	}
@@ -77,7 +85,7 @@ func migrate(db *sqlx.DB, log zerolog.Logger) error {
 		db.MustExec(createMigrationsTable)
 		log.Info().Msg("Created migrations table.")
 	} else {
-		log.Info().Msg("Retrieving old migrations...")
+		log.Debug().Msg("Retrieving old migrations...")
 		r, err := db.Query(`SELECT name FROM migrations`)
 		if err != nil {
 			return err
