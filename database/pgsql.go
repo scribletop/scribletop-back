@@ -29,25 +29,43 @@ var migrationsTableExistsQuery = `
 SELECT EXISTS (
 	SELECT 1
 	FROM information_schema.tables
-	WHERE table_schema = $1
+	WHERE table_catalog = $1
+	    AND table_schema = 'public'
 		AND table_name = 'migrations'
 );
 `
 
-func Initialize(c config.Config, log zerolog.Logger) (db *sqlx.DB) {
+func Initialize(c config.DatabaseConfig, log zerolog.Logger) (db *sqlx.DB) {
 	log.Debug().Msg("Connecting to database...")
 
-	db, err := connect(c.Database)
+	defaultConfig := config.DatabaseConfig{
+		Username: c.Username,
+		Password: c.Password,
+		Hostname: c.Hostname,
+	}
+	db, err := Connect(defaultConfig)
 	if err != nil {
 		log.Fatal().Err(err).Msg("Cannot connect to database.")
 	}
 
-	db.MustExec("CREATE SCHEMA IF NOT EXISTS " + strings.Split(c.Database.Schema, ";")[0])
-	db.MustExec("SET SEARCH_PATH TO " + strings.Split(c.Database.Schema, ";")[0])
+	safeDB := strings.Split(c.Database, ";")[0]
+	_, err = db.Exec(fmt.Sprintf("CREATE DATABASE %s", safeDB))
+	if err != nil && err.Error() != fmt.Sprintf("pq: database \"%s\" already exists", safeDB) {
+		log.Fatal().Err(err).Msg("Cannot create database.")
+	}
+
+	if err = db.Close(); err != nil {
+		log.Fatal().Err(err).Msg("Cannot connect to database.")
+	}
+
+	db, err = Connect(c)
+	if err != nil {
+		log.Fatal().Err(err).Msg("Cannot connect to database.")
+	}
 
 	log.Info().Msg("Connected to database.")
 
-	if err := migrate(db, log, c.Database.Schema); err != nil {
+	if err := migrate(db, log, c.Database); err != nil {
 		log.Fatal().Err(err).Msg("Could not execute migrations.")
 	}
 
@@ -56,7 +74,7 @@ func Initialize(c config.Config, log zerolog.Logger) (db *sqlx.DB) {
 	return db
 }
 
-func connect(config config.DatabaseConfig) (*sqlx.DB, error) {
+func Connect(config config.DatabaseConfig) (*sqlx.DB, error) {
 	dsn := fmt.Sprintf(
 		"user=%s password=%s host=%s sslmode=disable",
 		config.Username, config.Password, config.Hostname,
@@ -69,11 +87,11 @@ func connect(config config.DatabaseConfig) (*sqlx.DB, error) {
 	return sqlx.Connect("postgres", dsn)
 }
 
-func migrate(db *sqlx.DB, log zerolog.Logger, schema string) error {
+func migrate(db *sqlx.DB, log zerolog.Logger, database string) error {
 	log.Debug().Msg("Looking for migrations table...")
 
 	var exists bool
-	err := db.Get(&exists, migrationsTableExistsQuery, schema)
+	err := db.Get(&exists, migrationsTableExistsQuery, database)
 	if err != nil {
 		return err
 	}

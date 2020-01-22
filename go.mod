@@ -11,4 +11,6 @@ require (
 	github.com/onsi/ginkgo v1.11.0
 	github.com/onsi/gomega v1.8.1
 	github.com/rs/zerolog v1.17.2
+	golang.org/x/crypto v0.0.0-20190308221718-c2843e01d9a2
+	gopkg.in/go-playground/validator.v9 v9.29.1
 )
