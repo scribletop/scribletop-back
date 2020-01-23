@@ -13,11 +13,6 @@ import (
 	"time"
 )
 
-type migration struct {
-	Name      string
-	CreatedAt time.Time `db:"created_at"`
-}
-
 var createMigrationsTable = `
 CREATE TABLE migrations (
   name char(11) primary key,

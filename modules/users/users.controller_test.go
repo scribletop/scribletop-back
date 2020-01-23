@@ -3,12 +3,15 @@ package users_test
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"github.com/gin-gonic/gin"
-	. "github.com/onsi/ginkgo"
-	. "github.com/onsi/gomega"
 	"golang.org/x/crypto/bcrypt"
 	"net/http"
 	"net/http/httptest"
+	"strings"
+
+	. "github.com/onsi/ginkgo"
+	. "github.com/onsi/gomega"
 
 	validation "github.com/scribletop/scribletop-api/http"
 	"github.com/scribletop/scribletop-api/modules/users"
@@ -88,9 +91,39 @@ var _ = Describe("Users.Controller", func() {
 				Expect(tag).To(MatchRegexp("^joe#[0-9]{4}$"))
 			})
 
-			Context("With an already registered user", func() {
-				BeforeEach(func () {
+			Context("With an already registered email", func() {
+				BeforeEach(func() {
 					_, _ = TestDB.Exec("INSERT INTO users (email, tag, password) VALUES ($1, $2, $3)", "joe@example.com", "joe#1111", "")
+				})
+
+				It("should not fail", func() {
+					Expect(w.Code).To(Equal(201))
+				})
+			})
+
+			Context("With all tags registered", func() {
+				BeforeEach(func() {
+					query := make([]string, 10000)
+					for i := 0; i < 10000; i++ {
+						query = append(
+							query,
+							fmt.Sprintf("INSERT INTO users (email, tag, password) VALUES ('joe%04d.example.com', 'joe#%04d', '')", i, i),
+						)
+					}
+
+					TestDB.MustExec(strings.Join(query, ";"))
+				})
+
+				It("should tell him to be creative", func() {
+					expected, _ := json.Marshal(validation.Error{
+						Message: "Please verify your input.",
+						Details: []validation.ErrorDetail{
+							{"username", "Okay, be creative, 10000 people have the same username as you."},
+						},
+					})
+
+					Expect(w.Code).To(Equal(422))
+					Expect(w.Body).To(MatchJSON(expected))
 				})
 			})
 		})

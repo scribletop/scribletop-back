@@ -5,13 +5,17 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
+	"math/rand"
+	"os"
+	"time"
+
 	"github.com/scribletop/scribletop-api/config"
 	"github.com/scribletop/scribletop-api/database"
 	"github.com/scribletop/scribletop-api/http/router"
-	"os"
 )
 
 func main() {
+	rand.Seed(time.Now().UnixNano())
 	c := config.Load()
 	config.Print(c)
 

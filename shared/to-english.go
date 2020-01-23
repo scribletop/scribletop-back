@@ -1,4 +1,4 @@
-package text
+package shared
 
 var anWords = make(map[string]bool)
 
