@@ -8,7 +8,7 @@ import (
 
 var _ = Describe("Shared.TagGenerator", func() {
 	var tg shared.TagGenerator
-	BeforeEach(func() { tg = shared.NewGenerator() })
+	BeforeEach(func() { tg = shared.NewTagGenerator() })
 
 	Context("Random", func() {
 		It("should generate a random tag", func() {
@@ -21,7 +21,7 @@ var _ = Describe("Shared.TagGenerator", func() {
 
 	Context("RandomExcept", func() {
 		It("should generate a random tag except the one given", func() {
-			for i := 0; i < 100; i++ {
+			for i := 0; i < 10; i++ {
 				Expect(tg.RandomExcept(1, []string{"1"})).NotTo(Equal(1))
 			}
 		})

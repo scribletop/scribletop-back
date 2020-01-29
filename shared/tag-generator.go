@@ -1,3 +1,5 @@
+//go:generate mockery -all -output ./mocks
+
 package shared
 
 import (
@@ -14,7 +16,7 @@ type TagGenerator interface {
 
 type generator struct{}
 
-func NewGenerator() TagGenerator {
+func NewTagGenerator() TagGenerator {
 	return &generator{}
 }
 
