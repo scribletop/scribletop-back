@@ -3,8 +3,8 @@ package users
 import "github.com/scribletop/scribletop-api/database"
 
 type User struct {
-	Tag string `db:"tag"`
-	Email string `db:"email"`
+	Tag string `db:"tag" json:"tag"`
+	Email string `db:"email" json:"email"`
 	database.BaseModel
 }
 

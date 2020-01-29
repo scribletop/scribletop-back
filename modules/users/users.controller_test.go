@@ -61,6 +61,10 @@ var _ = Describe("Users.Controller", func() {
 					Expect(w.Code).To(Equal(201))
 				})
 
+				It("should have tag and email in response", func() {
+					Expect(w.Body).To(MatchJSON(`{"tag": "joe#1111", "email": "joe@example.com"}`))
+				})
+
 				It("should not have password in response", func() {
 					Expect(w.Body).NotTo(ContainSubstring("password"))
 				})

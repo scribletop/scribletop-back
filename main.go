@@ -33,6 +33,7 @@ func main() {
 	r := gin.New()
 	r.Use(logger.SetLogger(logger.Config{Logger: &httpLogger}), gin.RecoveryWithWriter(l))
 
+	router.AddCors(r, c.Http.Cors)
 	router.RegisterControllers(r, db)
 
 	if err := r.Run(); err != nil {
