@@ -24,7 +24,7 @@ var _ = Describe("Users.Service", func() {
 		TestDB.MustExec("TRUNCATE TABLE users")
 	})
 
-	Context("Creating a user", func() {
+	Context("creating a user", func() {
 		user := users.UserWithPassword{
 			Password: "password",
 			User: users.User{
@@ -68,7 +68,7 @@ var _ = Describe("Users.Service", func() {
 
 			Context("with a registered email", func() {
 				BeforeEach(func() {
-					_, _ = TestDB.Exec("INSERT INTO users (email, tag, password) VALUES ($1, $2, $3)", user.Email, user.Tag+"#"+generatedTag, "")
+					_, _ = TestDB.Exec("INSERT INTO users (email, tag, password) VALUES ($1, $2, $3)", user.Email, user.Tag, "")
 				})
 
 				It("should not add an user to the database", func() {
@@ -77,13 +77,27 @@ var _ = Describe("Users.Service", func() {
 					Expect(count).To(Equal(1))
 				})
 			})
+
+			Context("with a registered tag", func() {
+				BeforeEach(func() {
+					tg.On("RandomExcept", 4, []string{"1111"}).Return("2222", nil)
+					_, _ = TestDB.Exec("INSERT INTO users (email, tag, password) VALUES ($1, $2, $3)", "joe.mama@example.com", user.Tag+"#"+generatedTag, "")
+				})
+
+				It("should succeed", func() {
+					res, _ := TestDB.Query(
+						"SELECT * FROM users WHERE email = $1 AND tag = $2", user.Email, user.Tag+"#2222",
+					)
+					Expect(res.Next()).To(BeTrue())
+				})
+			})
 		})
 
 
-		Context("With all tags registered", func() {
+		Context("with all tags registered", func() {
 			BeforeEach(func() {
 				tg.On("RandomExcept", 4, []string{"1111"}).Return("", errors.New("no candidate found"))
-				_, _ = TestDB.Exec("INSERT INTO users (email, tag, password) VALUES ($1, $2, $3)", "joe.mama@example.com", "joe#1111", "")
+				_, _ = TestDB.Exec("INSERT INTO users (email, tag, password) VALUES ($1, $2, $3)", "joe.mama@example.com", user.Tag+"#"+generatedTag, "")
 			})
 
 			It("should tell him to be creative", func() {

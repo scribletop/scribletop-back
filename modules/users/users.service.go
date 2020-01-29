@@ -77,10 +77,11 @@ func (s *service) insertWithNewTag(user UserWithPassword) (string, error) {
 		return "", err
 	}
 
-	user.Tag, err = s.tg.RandomExcept(4, unavailableTags)
+	tag, err := s.tg.RandomExcept(4, unavailableTags)
 	if err != nil {
 		return "", err
 	}
+	user.Tag = strings.Split(user.Tag, "%")[0] + "#" + tag
 
 	_, err = s.db.NamedExec("INSERT INTO users (email, tag, password) VALUES (:email, :tag, :password)", &user)
 	if err != nil {
