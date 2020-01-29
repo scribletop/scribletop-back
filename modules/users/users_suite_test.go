@@ -5,6 +5,7 @@ import (
 	"github.com/rs/zerolog"
 	"github.com/scribletop/scribletop-api/config"
 	"github.com/scribletop/scribletop-api/database"
+	scribletop_apitest "github.com/scribletop/scribletop-api/scribletop-apitest"
 	"testing"
 
 	. "github.com/onsi/ginkgo"
@@ -20,9 +21,10 @@ var TestDB *sqlx.DB
 
 var _ = BeforeSuite(func() {
 	c := config.LoadTest("users_tests")
-	TestDB = database.Initialize(c, zerolog.Nop())
+	TestDB = database.Initialize(c.Database, zerolog.Nop())
 })
 
 var _ = AfterSuite(func() {
-	TestDB.MustExec("DROP SCHEMA users_tests CASCADE")
+	c := config.LoadTest("users_tests")
+	scribletop_apitest.CleanupDB(c.Database, TestDB)
 })

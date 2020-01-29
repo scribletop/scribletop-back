@@ -9,5 +9,8 @@ test-watch:
 test:
 	ginkgo -r
 
+test-with-cover:
+	ginkgo -r -cover
+
 build:
 	go build .
