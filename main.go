@@ -21,7 +21,10 @@ func main() {
 
 	l := createLogger(c)
 
-	db := database.Initialize(c.Database, l.With().Str("component", "database").Logger())
+	db, err := database.Initialize(c.Database, l.With().Str("component", "database").Logger())
+	if err != nil {
+		panic(err)
+	}
 	defer func() {
 		if err := db.Close(); err != nil {
 			l.Err(err).Str("component", "database").Msg("Could not close database.")

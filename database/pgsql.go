@@ -30,7 +30,7 @@ SELECT EXISTS (
 );
 `
 
-func Initialize(c config.DatabaseConfig, log zerolog.Logger) (db *sqlx.DB) {
+func Initialize(c config.DatabaseConfig, log zerolog.Logger) (db *sqlx.DB, err error) {
 	log.Debug().Msg("Connecting to database...")
 
 	defaultConfig := config.DatabaseConfig{
@@ -38,35 +38,39 @@ func Initialize(c config.DatabaseConfig, log zerolog.Logger) (db *sqlx.DB) {
 		Password: c.Password,
 		Hostname: c.Hostname,
 	}
-	db, err := Connect(defaultConfig)
+	db, err = Connect(defaultConfig)
 	if err != nil {
 		log.Fatal().Err(err).Msg("Cannot connect to database.")
+		return
 	}
 
 	safeDB := strings.Split(c.Database, ";")[0]
 	_, err = db.Exec(fmt.Sprintf("CREATE DATABASE %s", safeDB))
 	if err != nil && err.Error() != fmt.Sprintf("pq: database \"%s\" already exists", safeDB) {
 		log.Fatal().Err(err).Msg("Cannot create database.")
+		return
 	}
 
 	if err = db.Close(); err != nil {
 		log.Fatal().Err(err).Msg("Cannot connect to database.")
+		return
 	}
 
 	db, err = Connect(c)
 	if err != nil {
 		log.Fatal().Err(err).Msg("Cannot connect to database.")
+		return
 	}
 
 	log.Info().Msg("Connected to database.")
 
-	if err := migrate(db, log, c.Database); err != nil {
+	if err = migrate(db, log, c.Database); err != nil {
 		log.Fatal().Err(err).Msg("Could not execute migrations.")
+		return
 	}
 
 	log.Info().Msg("Database initialized and migrated.")
-
-	return db
+	return
 }
 
 func Connect(config config.DatabaseConfig) (*sqlx.DB, error) {

@@ -19,7 +19,9 @@ type HttpCorsConfig struct {
 }
 
 type HttpConfig struct {
-	Cors HttpCorsConfig
+	Cors       HttpCorsConfig
+	JwtPrivate string
+	JwtPublic  string
 }
 
 type Config struct {
@@ -71,13 +73,20 @@ func Load() Config {
 		config.Http.Cors.Url = val
 	}
 
+	config.Http.JwtPublic = os.Getenv("HTTP_JWT_PUBLIC")
+	config.Http.JwtPrivate = os.Getenv("HTTP_JWT_PRIVATE")
+
 	return config
 }
 
 func LoadTest(database string) Config {
 	return Config{
 		DatabaseConfig{"postgres", "password", "localhost", database},
-		HttpConfig{Cors: HttpCorsConfig{Allow: false, Url: ""}},
+		HttpConfig{
+			Cors:       HttpCorsConfig{Allow: false, Url: ""},
+			JwtPrivate: os.Getenv("HTTP_JWT_PRIVATE"),
+			JwtPublic:  os.Getenv("HTTP_JWT_PUBLIC"),
+		},
 		"test",
 		false,
 	}
