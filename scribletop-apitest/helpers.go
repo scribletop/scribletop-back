@@ -18,7 +18,7 @@ func SetupTestRouter() (w *httptest.ResponseRecorder, r *gin.Engine) {
 }
 
 func CleanupDB(c config.DatabaseConfig, db *sqlx.DB) {
-	db.Close()
+	_ = db.Close()
 	defaultConfig := config.DatabaseConfig{
 		Username: c.Username,
 		Password: c.Password,

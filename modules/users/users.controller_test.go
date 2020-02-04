@@ -18,7 +18,7 @@ import (
 	"github.com/scribletop/scribletop-api/scribletop-apitest"
 )
 
-var _ = Describe("Users.Controller", func() {
+var _ = Describe("UsersController", func() {
 	var r *gin.Engine
 	var w *httptest.ResponseRecorder
 	var us *mocks.Service
