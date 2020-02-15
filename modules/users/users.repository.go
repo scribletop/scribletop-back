@@ -4,8 +4,7 @@ import (
 	"github.com/jmoiron/sqlx"
 )
 
-//noinspection GoNameStartsWithPackageName
-type UsersRepository interface {
+type Repository interface {
 	FindByEmail(tag string) (*UserWithPassword, error)
 }
 
@@ -13,7 +12,7 @@ type repository struct {
 	db *sqlx.DB
 }
 
-func NewUsersRepository(db *sqlx.DB, ) UsersRepository {
+func NewUsersRepository(db *sqlx.DB, ) Repository {
 	return &repository{db}
 }
 

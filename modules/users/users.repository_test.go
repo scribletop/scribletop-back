@@ -8,8 +8,8 @@ import (
 	. "github.com/onsi/gomega"
 )
 
-var _ = Describe("UsersRepository", func() {
-	var r users.UsersRepository
+var _ = Describe("users.Repository", func() {
+	var r users.Repository
 	BeforeEach(func() {
 		r = users.NewUsersRepository(TestDB)
 	})

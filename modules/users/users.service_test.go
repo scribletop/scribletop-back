@@ -10,8 +10,8 @@ import (
 	. "github.com/onsi/gomega"
 )
 
-var _ = Describe("UsersService", func() {
-	var s users.UsersService
+var _ = Describe("users.Service", func() {
+	var s users.Service
 	var tg *mocks.TagGenerator
 
 	BeforeEach(func() {

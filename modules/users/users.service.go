@@ -11,8 +11,7 @@ import (
 	"github.com/scribletop/scribletop-api/shared"
 )
 
-//noinspection GoNameStartsWithPackageName
-type UsersService interface {
+type Service interface {
 	Create(user UserWithPassword) (User, error)
 }
 
@@ -21,7 +20,7 @@ type service struct {
 	tg shared.TagGenerator
 }
 
-func NewUsersService(db *sqlx.DB, tg shared.TagGenerator) UsersService {
+func NewUsersService(db *sqlx.DB, tg shared.TagGenerator) Service {
 	return &service{db, tg}
 }
 

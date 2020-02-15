@@ -27,12 +27,12 @@ type JwtClaims struct {
 
 type service struct {
 	c  jwtConfig
-	ur users.UsersRepository
+	ur users.Repository
 }
 
 var ErrIncorrectPassword = errors.New("auth: incorrect password")
 
-func NewAuthService(ur users.UsersRepository, c config.HttpConfig) Service {
+func NewAuthService(ur users.Repository, c config.HttpConfig) Service {
 	pb, _ := base64.StdEncoding.DecodeString(c.JwtPublic)
 	pv, _ := base64.StdEncoding.DecodeString(c.JwtPrivate)
 	public, err := jwt.ParseRSAPublicKeyFromPEM(pb)
