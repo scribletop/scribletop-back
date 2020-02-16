@@ -1,4 +1,4 @@
-package users_test
+package auth_test
 
 import (
 	"testing"
@@ -14,23 +14,24 @@ import (
 	"github.com/scribletop/scribletop-api/scribletop-apitest"
 )
 
-func TestUsers(t *testing.T) {
+func TestAuth(t *testing.T) {
 	RegisterFailHandler(Fail)
-	RunSpecs(t, "Users Suite")
+	RunSpecs(t, "Auth Suite")
 }
 
 var TestDB *sqlx.DB
+var TestConfig config.Config
 
 var _ = BeforeSuite(func() {
-	c := config.LoadTest("users_tests")
-	db, err := database.Initialize(c.Database, zerolog.Nop())
+	TestConfig = config.LoadTest("auth_tests")
+	db, err := database.Initialize(TestConfig.Database, zerolog.Nop())
 	Expect(err).NotTo(HaveOccurred())
 	TestDB = db
 })
 
 var _ = AfterSuite(func() {
 	if TestDB != nil {
-		c := config.LoadTest("users_tests")
+		c := config.LoadTest("auth_tests")
 		scribletop_apitest.CleanupDB(c.Database, TestDB)
 	}
 })

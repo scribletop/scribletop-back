@@ -1,13 +1,14 @@
 package main
 
 import (
+	"math/rand"
+	"os"
+	"time"
+
 	"github.com/gin-contrib/logger"
 	"github.com/gin-gonic/gin"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
-	"math/rand"
-	"os"
-	"time"
 
 	"github.com/scribletop/scribletop-api/config"
 	"github.com/scribletop/scribletop-api/database"
@@ -21,7 +22,10 @@ func main() {
 
 	l := createLogger(c)
 
-	db := database.Initialize(c.Database, l.With().Str("component", "database").Logger())
+	db, err := database.Initialize(c.Database, l.With().Str("component", "database").Logger())
+	if err != nil {
+		panic(err)
+	}
 	defer func() {
 		if err := db.Close(); err != nil {
 			l.Err(err).Str("component", "database").Msg("Could not close database.")
@@ -34,7 +38,7 @@ func main() {
 	r.Use(logger.SetLogger(logger.Config{Logger: &httpLogger}), gin.RecoveryWithWriter(l))
 
 	router.AddCors(r, c.Http.Cors)
-	router.RegisterControllers(r, db)
+	router.RegisterControllers(r, db, c)
 
 	if err := r.Run(); err != nil {
 		log.Fatal().Err(err).Msg("Could not run server.")
