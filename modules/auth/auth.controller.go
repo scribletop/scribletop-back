@@ -2,10 +2,12 @@ package auth
 
 import (
 	"fmt"
+
 	"github.com/gin-gonic/gin"
+	"gopkg.in/go-playground/validator.v9"
+
 	"github.com/scribletop/scribletop-api/http/controller"
 	"github.com/scribletop/scribletop-api/http/errors"
-	"gopkg.in/go-playground/validator.v9"
 )
 
 type authController struct {
@@ -38,6 +40,7 @@ func (a *authController) create(c *gin.Context) {
 	jwt, err := a.as.Authenticate(json.Email, json.Password)
 	if err != nil {
 		c.JSON(404, errors.Error{Message: "These credentials won't match in our database."})
+		return
 	}
 
 	c.JSON(201, createResponse{Jwt: jwt})

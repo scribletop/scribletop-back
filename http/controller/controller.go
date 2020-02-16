@@ -1,10 +1,12 @@
 package controller
 
 import (
-	"github.com/gin-gonic/gin"
-	"github.com/scribletop/scribletop-api/http/errors"
-	"gopkg.in/go-playground/validator.v9"
 	"strings"
+
+	"github.com/gin-gonic/gin"
+	"gopkg.in/go-playground/validator.v9"
+
+	"github.com/scribletop/scribletop-api/http/errors"
 )
 
 type Controller interface {

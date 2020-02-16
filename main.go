@@ -1,13 +1,14 @@
 package main
 
 import (
+	"math/rand"
+	"os"
+	"time"
+
 	"github.com/gin-contrib/logger"
 	"github.com/gin-gonic/gin"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
-	"math/rand"
-	"os"
-	"time"
 
 	"github.com/scribletop/scribletop-api/config"
 	"github.com/scribletop/scribletop-api/database"

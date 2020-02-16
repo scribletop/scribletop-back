@@ -2,12 +2,14 @@ package users_test
 
 import (
 	"errors"
-	"github.com/scribletop/scribletop-api/modules/users"
-	"github.com/scribletop/scribletop-api/shared/mocks"
+
 	"golang.org/x/crypto/bcrypt"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
+
+	"github.com/scribletop/scribletop-api/modules/users"
+	"github.com/scribletop/scribletop-api/shared/mocks"
 )
 
 var _ = Describe("users.Service", func() {

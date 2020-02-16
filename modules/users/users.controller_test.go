@@ -12,7 +12,7 @@ import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 
-	scribletop_errors "github.com/scribletop/scribletop-api/http/errors"
+	scribletoperrors "github.com/scribletop/scribletop-api/http/errors"
 	"github.com/scribletop/scribletop-api/modules/users"
 	"github.com/scribletop/scribletop-api/modules/users/mocks"
 	"github.com/scribletop/scribletop-api/scribletop-apitest"
@@ -79,9 +79,9 @@ var _ = Describe("users.Controller", func() {
 				})
 
 				It("should tell him to be creative", func() {
-					expected, _ := json.Marshal(scribletop_errors.ValidationError{
+					expected, _ := json.Marshal(scribletoperrors.ValidationError{
 						Message: "Please verify your input.",
-						Details: []scribletop_errors.ValidationErrorDetail{
+						Details: []scribletoperrors.ValidationErrorDetail{
 							{"username", "Okay, be creative, 10000 people have the same username as you."},
 						},
 					})
@@ -102,9 +102,9 @@ var _ = Describe("users.Controller", func() {
 			})
 
 			It("should return an error with password too small", func() {
-				expected, _ := json.Marshal(scribletop_errors.ValidationError{
+				expected, _ := json.Marshal(scribletoperrors.ValidationError{
 					Message: "Please verify your input.",
-					Details: []scribletop_errors.ValidationErrorDetail{
+					Details: []scribletoperrors.ValidationErrorDetail{
 						{"password", "That password is too small!"},
 					},
 				})
@@ -122,9 +122,9 @@ var _ = Describe("users.Controller", func() {
 			})
 
 			It("should have a body with the missing fields", func() {
-				expected, _ := json.Marshal(scribletop_errors.ValidationError{
+				expected, _ := json.Marshal(scribletoperrors.ValidationError{
 					Message: "Please verify your input.",
-					Details: []scribletop_errors.ValidationErrorDetail{
+					Details: []scribletoperrors.ValidationErrorDetail{
 						{"username", "You need a username to register!"},
 						{"email", "You need an email to register!"},
 						{"password", "That password is too small!"},

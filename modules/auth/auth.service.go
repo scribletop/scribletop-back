@@ -6,11 +6,13 @@ import (
 	"crypto/rsa"
 	"encoding/base64"
 	"errors"
+	"time"
+
 	"github.com/dgrijalva/jwt-go/v4"
+	"golang.org/x/crypto/bcrypt"
+
 	"github.com/scribletop/scribletop-api/config"
 	"github.com/scribletop/scribletop-api/modules/users"
-	"golang.org/x/crypto/bcrypt"
-	"time"
 )
 
 type Service interface {

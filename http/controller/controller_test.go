@@ -3,13 +3,16 @@ package controller_test
 import (
 	"bytes"
 	"encoding/json"
+	"net/http/httptest"
+
 	"github.com/gin-gonic/gin"
+	"gopkg.in/go-playground/validator.v9"
+
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
+
 	"github.com/scribletop/scribletop-api/http/controller"
 	scribletop_errors "github.com/scribletop/scribletop-api/http/errors"
-	"gopkg.in/go-playground/validator.v9"
-	"net/http/httptest"
 )
 
 type userRequest struct {

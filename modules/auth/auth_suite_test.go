@@ -1,15 +1,17 @@
 package auth_test
 
 import (
+	"testing"
+
 	"github.com/jmoiron/sqlx"
 	"github.com/rs/zerolog"
-	"github.com/scribletop/scribletop-api/config"
-	"github.com/scribletop/scribletop-api/database"
-	"github.com/scribletop/scribletop-api/scribletop-apitest"
-	"testing"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
+
+	"github.com/scribletop/scribletop-api/config"
+	"github.com/scribletop/scribletop-api/database"
+	"github.com/scribletop/scribletop-api/scribletop-apitest"
 )
 
 func TestAuth(t *testing.T) {

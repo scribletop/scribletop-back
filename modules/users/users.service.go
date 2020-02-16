@@ -4,9 +4,10 @@ package users
 
 import (
 	"fmt"
+	"strings"
+
 	"github.com/jmoiron/sqlx"
 	"golang.org/x/crypto/bcrypt"
-	"strings"
 
 	"github.com/scribletop/scribletop-api/shared"
 )

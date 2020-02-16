@@ -3,13 +3,16 @@ package auth_test
 import (
 	"database/sql"
 	"encoding/base64"
-	jwt "github.com/dgrijalva/jwt-go/v4"
+
+	"github.com/dgrijalva/jwt-go/v4"
+	"golang.org/x/crypto/bcrypt"
+
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
+
 	"github.com/scribletop/scribletop-api/modules/auth"
 	"github.com/scribletop/scribletop-api/modules/users"
 	usersmocks "github.com/scribletop/scribletop-api/modules/users/mocks"
-	"golang.org/x/crypto/bcrypt"
 )
 
 var _ = Describe("AuthService", func() {

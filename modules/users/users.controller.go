@@ -2,12 +2,14 @@ package users
 
 import (
 	"fmt"
+	"strings"
+
 	"github.com/gin-gonic/gin"
+	"gopkg.in/go-playground/validator.v9"
+
 	"github.com/scribletop/scribletop-api/http/controller"
 	"github.com/scribletop/scribletop-api/http/errors"
 	"github.com/scribletop/scribletop-api/shared"
-	"gopkg.in/go-playground/validator.v9"
-	"strings"
 )
 
 type userController struct {

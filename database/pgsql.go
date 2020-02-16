@@ -1,16 +1,19 @@
 package database
 
 import (
-	"fmt"
-	"github.com/jmoiron/sqlx"
 	_ "github.com/lib/pq"
-	"github.com/markbates/pkger"
-	"github.com/rs/zerolog"
-	"github.com/scribletop/scribletop-api/config"
+
+	"fmt"
 	"io/ioutil"
 	"os"
 	"strings"
 	"time"
+
+	"github.com/jmoiron/sqlx"
+	"github.com/markbates/pkger"
+	"github.com/rs/zerolog"
+
+	"github.com/scribletop/scribletop-api/config"
 )
 
 var createMigrationsTable = `

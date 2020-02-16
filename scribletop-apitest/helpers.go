@@ -2,12 +2,14 @@ package scribletop_apitest
 
 import (
 	"fmt"
-	"github.com/gin-gonic/gin"
-	"github.com/jmoiron/sqlx"
-	"github.com/scribletop/scribletop-api/config"
-	"github.com/scribletop/scribletop-api/database"
 	"net/http/httptest"
 	"strings"
+
+	"github.com/gin-gonic/gin"
+	"github.com/jmoiron/sqlx"
+
+	"github.com/scribletop/scribletop-api/config"
+	"github.com/scribletop/scribletop-api/database"
 )
 
 func SetupTestRouter() (w *httptest.ResponseRecorder, r *gin.Engine) {

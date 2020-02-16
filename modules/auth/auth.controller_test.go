@@ -3,6 +3,7 @@ package auth_test
 import (
 	"bytes"
 	"database/sql"
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"net/http/httptest"
@@ -12,6 +13,7 @@ import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 
+	scribletoperrors "github.com/scribletop/scribletop-api/http/errors"
 	"github.com/scribletop/scribletop-api/modules/auth"
 	"github.com/scribletop/scribletop-api/modules/auth/mocks"
 	"github.com/scribletop/scribletop-api/scribletop-apitest"
@@ -54,6 +56,10 @@ var _ = Describe("auth.Controller", func() {
 		})
 
 		Context("with incorrect input", func() {
+			expected, _ := json.Marshal(scribletoperrors.Error{
+				Message: "These credentials won't match in our database.",
+			})
+
 			BeforeEach(func() {
 				email = "foo"
 				password = "bar"
@@ -62,11 +68,13 @@ var _ = Describe("auth.Controller", func() {
 			Context("email not found", func() {
 				BeforeEach(func() { as.On("Authenticate", email, password).Return("", sql.ErrNoRows) })
 				It("should return a 404", func() { Expect(w.Code).To(Equal(404)) })
+				It("should show an error message user not found", func() { Expect(w.Body).To(MatchJSON(expected)) })
 			})
 
 			Context("invalid password", func() {
 				BeforeEach(func() { as.On("Authenticate", email, password).Return("", auth.ErrIncorrectPassword) })
 				It("should return a 404", func() { Expect(w.Code).To(Equal(404)) })
+				It("should show an error message user not found", func() { Expect(w.Body).To(MatchJSON(expected)) })
 			})
 
 			Context("invalid json", func() {
