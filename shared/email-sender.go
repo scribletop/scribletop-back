@@ -121,10 +121,12 @@ func (mc *mailtrapClient) Send(m *mail.SGMailV3) (*rest.Response, error) {
 		m.From.Address,
 		[]string{m.Personalizations[0].To[0].Address},
 		[]byte(
-			"To: "+m.Personalizations[0].To[0].Address+"\r\n"+
+			"From: "+m.From.Name+" <"+m.From.Address+">\r\n"+
+				"To: "+m.Personalizations[0].To[0].Name+" <"+m.Personalizations[0].To[0].Address+">\r\n"+
 				"Subject: "+m.Subject+"\r\n"+
+				"Content-Type: text/html; charset=utf-8\r\n"+
 				"\r\n"+
-				m.Content[0].Value+"\r\n",
+				m.Content[1].Value+"\r\n",
 		),
 	)
 
