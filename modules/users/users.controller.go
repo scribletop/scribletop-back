@@ -30,6 +30,10 @@ type createRequest struct {
 	Password string `json:"password" binding:"min=8"`
 }
 
+type createResponse struct {
+	Email string `json:"email"`
+}
+
 func (u *userController) create(c *gin.Context) {
 	var json createRequest
 	if err := controller.ParseRequest(c, &json, u.validateCreate); err != nil {
@@ -60,7 +64,7 @@ func (u *userController) create(c *gin.Context) {
 		return
 	}
 
-	c.JSON(201, res)
+	c.JSON(201, createResponse{Email: res.Email})
 }
 
 func (u *userController) validationToEnglish(err error) []errors.ValidationErrorDetail {
