@@ -5,12 +5,14 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/jmoiron/sqlx"
 	"github.com/scribletop/scribletop-api/config"
+	"github.com/scribletop/scribletop-api/modules/auth"
 	"github.com/scribletop/scribletop-api/modules/users"
 	"github.com/scribletop/scribletop-api/shared"
 )
 
-func RegisterControllers(r *gin.Engine, db *sqlx.DB) {
+func RegisterControllers(r *gin.Engine, db *sqlx.DB, c config.Config) {
 	users.NewUserController(users.NewUsersService(db, shared.NewTagGenerator())).RegisterRoutes(r.Group("/users"))
+	auth.NewAuthController(auth.NewAuthService(users.NewUsersRepository(db), c.Http)).RegisterRoutes(r.Group("/auth"))
 }
 
 func AddCors(r *gin.Engine, c config.HttpCorsConfig) {

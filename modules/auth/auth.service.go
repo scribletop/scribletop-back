@@ -1,3 +1,5 @@
+//go:generate mockery -all -output ./mocks
+
 package auth
 
 import (

@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/scribletop/scribletop-api/http/controller"
-	"github.com/scribletop/scribletop-api/http/validation"
+	"github.com/scribletop/scribletop-api/http/errors"
 	"github.com/scribletop/scribletop-api/shared"
 	"gopkg.in/go-playground/validator.v9"
 	"strings"
@@ -22,16 +22,16 @@ func (u *userController) RegisterRoutes(router *gin.RouterGroup) {
 	router.POST("/", u.create)
 }
 
-type CreateUserRequest struct {
+type createRequest struct {
 	Username string `json:"username" binding:"required,min=3"`
 	Email    string `json:"email" binding:"required,email"`
 	Password string `json:"password" binding:"min=8"`
 }
 
 func (u *userController) create(c *gin.Context) {
-	var json CreateUserRequest
+	var json createRequest
 	if err := c.ShouldBindJSON(&json); err != nil {
-		c.JSON(422, validation.Error{
+		c.JSON(422, errors.ValidationError{
 			Message: "Please verify your input.",
 			Details: u.validationToEnglish(err),
 		})
@@ -48,9 +48,9 @@ func (u *userController) create(c *gin.Context) {
 
 	if err != nil {
 		if err.Error() == "no candidate found" {
-			c.JSON(422, validation.Error{
+			c.JSON(422, errors.ValidationError{
 				Message: "Please verify your input.",
-				Details: []validation.ErrorDetail{{
+				Details: []errors.ValidationErrorDetail{{
 					Field: "username",
 					Error: "Okay, be creative, 10000 people have the same username as you.",
 				}},
@@ -65,10 +65,10 @@ func (u *userController) create(c *gin.Context) {
 	c.JSON(201, res)
 }
 
-func (u *userController) validationToEnglish(err error) []validation.ErrorDetail {
-	var details []validation.ErrorDetail
+func (u *userController) validationToEnglish(err error) []errors.ValidationErrorDetail {
+	var details []errors.ValidationErrorDetail
 	for _, e := range err.(validator.ValidationErrors) {
-		d := validation.ErrorDetail{Field: strings.ToLower(e.Field()), Error: ""}
+		d := errors.ValidationErrorDetail{Field: strings.ToLower(e.Field()), Error: ""}
 
 		if e.Tag() == "required" {
 			d.Error = fmt.Sprintf("You need %s to register!", shared.ToEnglish(d.Field))

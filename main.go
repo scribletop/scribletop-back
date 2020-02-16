@@ -37,7 +37,7 @@ func main() {
 	r.Use(logger.SetLogger(logger.Config{Logger: &httpLogger}), gin.RecoveryWithWriter(l))
 
 	router.AddCors(r, c.Http.Cors)
-	router.RegisterControllers(r, db)
+	router.RegisterControllers(r, db, c)
 
 	if err := r.Run(); err != nil {
 		log.Fatal().Err(err).Msg("Could not run server.")
