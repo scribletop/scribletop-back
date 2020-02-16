@@ -32,6 +32,7 @@ type MailConfig struct {
 	Username string
 	Password string
 	ApiKey   string
+	Sender   string
 }
 
 type Config struct {
@@ -100,6 +101,7 @@ func Load() Config {
 	config.Mail.Username = strings.TrimSpace(os.Getenv("MAIL_USERNAME"))
 	config.Mail.Password = strings.TrimSpace(os.Getenv("MAIL_PASSWORD"))
 	config.Mail.ApiKey = strings.TrimSpace(os.Getenv("MAIL_API_KEY"))
+	config.Mail.Sender = strings.TrimSpace(os.Getenv("MAIL_SENDER"))
 
 	return config
 }

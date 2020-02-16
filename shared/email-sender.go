@@ -28,15 +28,14 @@ type EmailClient interface {
 }
 
 type emailSender struct {
-	key         string
 	senderEmail string
 	client      EmailClient
 }
 
 var emails = map[string]*template.Template{}
 
-func NewEmailSender(key, senderEmail string, client EmailClient) (EmailSender, error) {
-	return &emailSender{key, senderEmail, client},
+func NewEmailSender(senderEmail string, client EmailClient) (EmailSender, error) {
+	return &emailSender{senderEmail, client},
 		pkger.Walk("/emails", func(path string, info os.FileInfo, err error) error {
 			if err != nil {
 				return err
