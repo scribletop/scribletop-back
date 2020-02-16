@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"strconv"
+	"strings"
 )
 
 type DatabaseConfig struct {
@@ -25,9 +26,18 @@ type HttpConfig struct {
 	JwtPublic  string
 }
 
+type MailConfig struct {
+	Host     string
+	Port     int
+	Username string
+	Password string
+	ApiKey   string
+}
+
 type Config struct {
 	Database DatabaseConfig
 	Http     HttpConfig
+	Mail     MailConfig
 	Env      string
 	Debug    bool
 }
@@ -36,6 +46,7 @@ func Load() Config {
 	config := Config{
 		DatabaseConfig{"postgres", "password", "localhost", "scribletop"},
 		HttpConfig{Port: 8080, Cors: HttpCorsConfig{Allow: true, Url: "http://localhost:4200"}},
+		MailConfig{},
 		"local",
 		false,
 	}
@@ -84,10 +95,17 @@ func Load() Config {
 	config.Http.JwtPublic = os.Getenv("HTTP_JWT_PUBLIC")
 	config.Http.JwtPrivate = os.Getenv("HTTP_JWT_PRIVATE")
 
+	config.Mail.Host = os.Getenv("MAIL_HOST")
+	config.Mail.Port, _ = strconv.Atoi(os.Getenv("MAIL_PORT"))
+	config.Mail.Username = strings.TrimSpace(os.Getenv("MAIL_USERNAME"))
+	config.Mail.Password = strings.TrimSpace(os.Getenv("MAIL_PASSWORD"))
+	config.Mail.ApiKey = strings.TrimSpace(os.Getenv("MAIL_API_KEY"))
+
 	return config
 }
 
 func LoadTest(database string) Config {
+	mailPort, _ := strconv.Atoi(os.Getenv("MAIL_PORT"))
 	return Config{
 		DatabaseConfig{"postgres", "password", "localhost", database},
 		HttpConfig{
@@ -95,6 +113,13 @@ func LoadTest(database string) Config {
 			Cors:       HttpCorsConfig{Allow: false, Url: ""},
 			JwtPrivate: os.Getenv("HTTP_JWT_PRIVATE"),
 			JwtPublic:  os.Getenv("HTTP_JWT_PUBLIC"),
+		},
+		MailConfig{
+			Host:     os.Getenv("MAIL_HOST"),
+			Port:     mailPort,
+			Username: strings.TrimSpace(os.Getenv("MAIL_USERNAME")),
+			Password: strings.TrimSpace(os.Getenv("MAIL_PASSWORD")),
+			ApiKey:   strings.TrimSpace(os.Getenv("MAIL_API_KEY")),
 		},
 		"test",
 		false,
