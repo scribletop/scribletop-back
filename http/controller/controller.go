@@ -16,7 +16,7 @@ type Controller interface {
 func ParseRequest(
 	c *gin.Context,
 	target interface{},
-	translateFunc func(err validator.FieldError) string,
+	translateFunc func(err validator.FieldError, fieldName string) string,
 ) error {
 	err := c.ShouldBindJSON(target)
 	if err == nil {
@@ -31,7 +31,7 @@ func ParseRequest(
 		var details []errors.ValidationErrorDetail
 		for _, e := range verr {
 			d := errors.ValidationErrorDetail{Field: strings.ToLower(e.Field()), Error: ""}
-			d.Error = translateFunc(e)
+			d.Error = translateFunc(e, d.Field)
 			details = append(details, d)
 		}
 

@@ -32,11 +32,7 @@ type createRequest struct {
 
 func (u *userController) create(c *gin.Context) {
 	var json createRequest
-	if err := c.ShouldBindJSON(&json); err != nil {
-		c.JSON(422, errors.ValidationError{
-			Message: "Please verify your input.",
-			Details: u.validationToEnglish(err),
-		})
+	if err := controller.ParseRequest(c, &json, u.validateCreate); err != nil {
 		return
 	}
 
@@ -72,16 +68,24 @@ func (u *userController) validationToEnglish(err error) []errors.ValidationError
 	for _, e := range err.(validator.ValidationErrors) {
 		d := errors.ValidationErrorDetail{Field: strings.ToLower(e.Field()), Error: ""}
 
-		if e.Tag() == "required" {
-			d.Error = fmt.Sprintf("You need %s to register!", shared.ToEnglish(d.Field))
-		}
-
-		if e.Tag() == "min" {
-			d.Error = fmt.Sprintf("That %s is too small!", d.Field)
-		}
-
 		details = append(details, d)
 	}
 
 	return details
+}
+
+func (u *userController) validateCreate(err validator.FieldError, f string) string {
+	if err.Tag() == "required" {
+		return fmt.Sprintf("You need %s to register!", shared.ToEnglish(f))
+	}
+
+	if err.Tag() == "min" {
+		return fmt.Sprintf("That %s is too small!", f)
+	}
+
+	if err.Tag() == "email" {
+		return fmt.Sprintf("Your %s does not look like an email.", f)
+	}
+
+	panic("unhandled error message")
 }

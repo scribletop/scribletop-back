@@ -19,7 +19,7 @@ type userRequest struct {
 	Username string `json:"username" binding:"required"`
 }
 
-func v(err validator.FieldError) string {
+func v(validator.FieldError, string) string {
 	return "bad"
 }
 

@@ -46,9 +46,9 @@ func (a *authController) create(c *gin.Context) {
 	c.JSON(201, createResponse{Jwt: jwt})
 }
 
-func (u *authController) validateCreate(err validator.FieldError) string {
+func (a *authController) validateCreate(err validator.FieldError, f string) string {
 	if err.Tag() == "required" {
-		return fmt.Sprintf("Please fill your %s.", err.Field())
+		return fmt.Sprintf("Please fill your %s.", f)
 	}
 
 	panic("unhandled error message")

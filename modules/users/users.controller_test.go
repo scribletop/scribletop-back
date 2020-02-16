@@ -112,6 +112,26 @@ var _ = Describe("users.Controller", func() {
 			})
 		})
 
+		Context("With invalid email", func() {
+			BeforeEach(func() {
+				body = []byte(`{"email":"joe","username":"joe","password":"password"}`)
+			})
+
+			It("should respond with a 422", func() {
+				Expect(w.Code).To(Equal(422))
+			})
+
+			It("should return an error with invalid email", func() {
+				expected, _ := json.Marshal(scribletoperrors.ValidationError{
+					Message: "Please verify your input.",
+					Details: []scribletoperrors.ValidationErrorDetail{
+						{"email", "Your email does not look like an email."},
+					},
+				})
+				Expect(w.Body).To(MatchJSON(expected))
+			})
+		})
+
 		Context("With empty input", func() {
 			BeforeEach(func() {
 				body = []byte(`{}`)
