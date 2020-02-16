@@ -2,7 +2,6 @@ package users
 
 import (
 	"fmt"
-	"strings"
 
 	"github.com/gin-gonic/gin"
 	"gopkg.in/go-playground/validator.v9"
@@ -65,17 +64,6 @@ func (u *userController) create(c *gin.Context) {
 	}
 
 	c.JSON(201, createResponse{Email: res.Email})
-}
-
-func (u *userController) validationToEnglish(err error) []errors.ValidationErrorDetail {
-	var details []errors.ValidationErrorDetail
-	for _, e := range err.(validator.ValidationErrors) {
-		d := errors.ValidationErrorDetail{Field: strings.ToLower(e.Field()), Error: ""}
-
-		details = append(details, d)
-	}
-
-	return details
 }
 
 func (u *userController) validateCreate(err validator.FieldError, f string) string {
