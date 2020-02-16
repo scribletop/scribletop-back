@@ -17,10 +17,12 @@ type Service interface {
 type service struct {
 	db *sqlx.DB
 	tg shared.TagGenerator
+	es shared.EmailSender
+	ur Repository
 }
 
-func NewUsersService(db *sqlx.DB, tg shared.TagGenerator) Service {
-	return &service{db, tg}
+func NewUsersService(db *sqlx.DB, tg shared.TagGenerator, es shared.EmailSender, ur Repository) Service {
+	return &service{db, tg, es, ur}
 }
 
 func (s *service) Create(user UserWithPassword) (User, error) {
@@ -36,6 +38,11 @@ func (s *service) Create(user UserWithPassword) (User, error) {
 		return s.handleCreateError(err, user)
 	}
 
+	dst := fmt.Sprintf("%s <%s>", user.Tag, user.Email)
+	_ = s.es.SendEmail(dst, "Registration complete!", "new-user", struct {
+		Link string
+	}{Link: ""})
+
 	return User{
 		Tag:   user.Tag,
 		Email: user.Email,
@@ -45,7 +52,17 @@ func (s *service) Create(user UserWithPassword) (User, error) {
 func (s *service) handleCreateError(err error, user UserWithPassword) (User, error) {
 	if strings.Contains(err.Error(), "duplicate") {
 		if strings.Contains(err.Error(), "email") {
-			// @TODO send email to user
+			u, err := s.ur.FindByEmail(user.Email)
+			if err != nil {
+				return User{}, err
+			}
+
+			dst := fmt.Sprintf("%s <%s>", u.Tag, u.Email)
+			_ = s.es.SendEmail(dst, "Someone tried to register with your email address", "new-user-duplicate-email", struct {
+				Link string
+				Tag  string
+			}{Link: "", Tag: u.Tag})
+
 			return User{
 				Tag:   user.Tag,
 				Email: user.Email,

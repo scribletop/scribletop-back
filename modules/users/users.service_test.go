@@ -2,6 +2,7 @@ package users_test
 
 import (
 	"errors"
+	"fmt"
 
 	"golang.org/x/crypto/bcrypt"
 
@@ -10,20 +11,27 @@ import (
 
 	"github.com/scribletop/scribletop-api/modules/users"
 
+	usersmocks "github.com/scribletop/scribletop-api/mocks/modules/users"
 	sharedmocks "github.com/scribletop/scribletop-api/mocks/shared"
 )
 
 var _ = Describe("users.Service", func() {
 	var s users.Service
 	var tg *sharedmocks.TagGenerator
+	var es *sharedmocks.EmailSender
+	var ur *usersmocks.Repository
 
 	BeforeEach(func() {
 		tg = new(sharedmocks.TagGenerator)
-		s = users.NewUsersService(TestDB, tg)
+		es = new(sharedmocks.EmailSender)
+		ur = new(usersmocks.Repository)
+		s = users.NewUsersService(TestDB, tg, es, ur)
 	})
 
 	AfterEach(func() {
+		es.AssertExpectations(GinkgoT())
 		tg.AssertExpectations(GinkgoT())
+		ur.AssertExpectations(GinkgoT())
 		TestDB.MustExec("TRUNCATE TABLE users")
 	})
 
@@ -51,27 +59,43 @@ var _ = Describe("users.Service", func() {
 				Expect(resultErr).NotTo(HaveOccurred())
 			})
 
-			It("adds a tag to the username", func() {
-				Expect(result.Tag).To(Equal(user.Tag + "#" + generatedTag))
-			})
+			Context("with no problem", func() {
+				BeforeEach(func() {
+					dst := fmt.Sprintf("%s <%s>", user.Tag+"#"+generatedTag, user.Email)
+					es.On("SendEmail", dst, "Registration complete!", "new-user", struct {
+						Link string
+					}{Link: ""}).Return(nil)
+				})
 
-			It("creates an user in the database", func() {
-				res, _ := TestDB.Query(
-					"SELECT * FROM users WHERE email = $1 AND tag = $2", user.Email, user.Tag+"#"+generatedTag,
-				)
-				Expect(res.Next()).To(BeTrue())
-			})
+				It("adds a tag to the username", func() {
+					Expect(result.Tag).To(Equal(user.Tag + "#" + generatedTag))
+				})
 
-			It("hashes the password", func() {
-				var password string
-				_ = TestDB.Get(&password, "SELECT password FROM users")
-				Expect(password).NotTo(Equal("password"))
-				Expect(bcrypt.CompareHashAndPassword([]byte(password), []byte("password"))).To(BeNil())
+				It("creates an user in the database", func() {
+					res, _ := TestDB.Query(
+						"SELECT * FROM users WHERE email = $1 AND tag = $2", user.Email, user.Tag+"#"+generatedTag,
+					)
+					Expect(res.Next()).To(BeTrue())
+				})
+
+				It("hashes the password", func() {
+					var password string
+					_ = TestDB.Get(&password, "SELECT password FROM users")
+					Expect(password).NotTo(Equal("password"))
+					Expect(bcrypt.CompareHashAndPassword([]byte(password), []byte("password"))).To(BeNil())
+				})
 			})
 
 			Context("with a registered email", func() {
 				BeforeEach(func() {
 					_, _ = TestDB.Exec("INSERT INTO users (email, tag, password) VALUES ($1, $2, $3)", user.Email, user.Tag, "")
+					ur.On("FindByEmail", user.Email).Return(&users.UserWithPassword{User: users.User{Email: user.Email, Tag: "RealTag"}}, nil)
+					dst := fmt.Sprintf("%s <%s>", "RealTag", user.Email)
+					subject := "Someone tried to register with your email address"
+					es.On("SendEmail", dst, subject, "new-user-duplicate-email", struct {
+						Link string
+						Tag  string
+					}{Link: "", Tag: "RealTag"}).Return(nil)
 				})
 
 				It("should not add an user to the database", func() {
@@ -95,7 +119,6 @@ var _ = Describe("users.Service", func() {
 				})
 			})
 		})
-
 
 		Context("with all tags registered", func() {
 			BeforeEach(func() {

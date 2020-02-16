@@ -5,7 +5,7 @@ import (
 )
 
 type Repository interface {
-	FindByEmail(tag string) (*UserWithPassword, error)
+	FindByEmail(email string) (*UserWithPassword, error)
 }
 
 type repository struct {
