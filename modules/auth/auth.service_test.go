@@ -12,7 +12,8 @@ import (
 
 	"github.com/scribletop/scribletop-api/modules/auth"
 	"github.com/scribletop/scribletop-api/modules/users"
-	usersmocks "github.com/scribletop/scribletop-api/modules/users/mocks"
+
+	usersmocks "github.com/scribletop/scribletop-api/mocks/modules/users"
 )
 
 var _ = Describe("AuthService", func() {

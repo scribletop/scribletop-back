@@ -14,18 +14,19 @@ import (
 
 	scribletoperrors "github.com/scribletop/scribletop-api/http/errors"
 	"github.com/scribletop/scribletop-api/modules/users"
-	"github.com/scribletop/scribletop-api/modules/users/mocks"
 	"github.com/scribletop/scribletop-api/scribletop-apitest"
+
+	usersmocks "github.com/scribletop/scribletop-api/mocks/modules/users"
 )
 
 var _ = Describe("users.Controller", func() {
 	var r *gin.Engine
 	var w *httptest.ResponseRecorder
-	var us *mocks.Service
+	var us *usersmocks.Service
 
 	BeforeEach(func() {
 		w, r = scribletop_apitest.SetupTestRouter()
-		us = new(mocks.Service)
+		us = new(usersmocks.Service)
 		c := users.NewUserController(us)
 		c.RegisterRoutes(r.Group("/users"))
 	})

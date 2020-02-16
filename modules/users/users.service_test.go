@@ -9,15 +9,16 @@ import (
 	. "github.com/onsi/gomega"
 
 	"github.com/scribletop/scribletop-api/modules/users"
-	"github.com/scribletop/scribletop-api/shared/mocks"
+
+	sharedmocks "github.com/scribletop/scribletop-api/mocks/shared"
 )
 
 var _ = Describe("users.Service", func() {
 	var s users.Service
-	var tg *mocks.TagGenerator
+	var tg *sharedmocks.TagGenerator
 
 	BeforeEach(func() {
-		tg = new(mocks.TagGenerator)
+		tg = new(sharedmocks.TagGenerator)
 		s = users.NewUsersService(TestDB, tg)
 	})
 

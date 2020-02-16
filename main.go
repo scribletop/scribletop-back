@@ -1,3 +1,5 @@
+//go:generate mockery -all -keeptree -output ./mocks
+
 package main
 
 import (
