@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"math/rand"
 	"os"
 	"time"
@@ -40,7 +41,7 @@ func main() {
 	router.AddCors(r, c.Http.Cors)
 	router.RegisterControllers(r, db, c)
 
-	if err := r.Run(); err != nil {
+	if err := r.Run(fmt.Sprintf(":%d", c.Http.Port)); err != nil {
 		log.Fatal().Err(err).Msg("Could not run server.")
 	}
 }

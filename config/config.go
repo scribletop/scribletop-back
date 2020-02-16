@@ -19,6 +19,7 @@ type HttpCorsConfig struct {
 }
 
 type HttpConfig struct {
+	Port       int
 	Cors       HttpCorsConfig
 	JwtPrivate string
 	JwtPublic  string
@@ -34,7 +35,7 @@ type Config struct {
 func Load() Config {
 	config := Config{
 		DatabaseConfig{"postgres", "password", "localhost", "scribletop"},
-		HttpConfig{Cors: HttpCorsConfig{Allow: true, Url: "http://localhost:4200"}},
+		HttpConfig{Port: 8080, Cors: HttpCorsConfig{Allow: true, Url: "http://localhost:4200"}},
 		"local",
 		false,
 	}
@@ -64,6 +65,13 @@ func Load() Config {
 		config.Database.Password = val
 	}
 
+	if val := os.Getenv("HTTP_PORT"); val != "" {
+		port, err := strconv.Atoi(val)
+		if err == nil {
+			config.Http.Port = port
+		}
+	}
+
 	if val := os.Getenv("HTTP_CORS_ALLOW"); val != "" {
 		cors, err := strconv.ParseBool(val)
 		config.Http.Cors.Allow = err != nil || cors
@@ -83,6 +91,7 @@ func LoadTest(database string) Config {
 	return Config{
 		DatabaseConfig{"postgres", "password", "localhost", database},
 		HttpConfig{
+			Port:       8080,
 			Cors:       HttpCorsConfig{Allow: false, Url: ""},
 			JwtPrivate: os.Getenv("HTTP_JWT_PRIVATE"),
 			JwtPublic:  os.Getenv("HTTP_JWT_PUBLIC"),
@@ -103,10 +112,11 @@ func Print(c Config) {
 	fmt.Printf("	Username: %s\n", c.Database.Username)
 	fmt.Printf("	Database: %s\n\n", c.Database.Database)
 	fmt.Printf("Http:\n")
+	fmt.Printf("	Address: %s\n", fmt.Sprintf("localhost:%d", c.Http.Port))
 	if c.Http.Cors.Allow {
-		fmt.Printf("	CORS: %s\n", c.Http.Cors.Url)
+		fmt.Printf("	CORS:    %s\n", c.Http.Cors.Url)
 	} else {
-		fmt.Printf("	CORS: NO\n")
+		fmt.Printf("	CORS:    NO\n")
 	}
 	fmt.Printf("------------------------------------------------\n")
 }
