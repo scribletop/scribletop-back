@@ -3,6 +3,7 @@ package users_test
 import (
 	"errors"
 	"fmt"
+	"github.com/scribletop/scribletop-api/modules/interfaces"
 
 	"golang.org/x/crypto/bcrypt"
 
@@ -15,8 +16,8 @@ import (
 	sharedmocks "github.com/scribletop/scribletop-api/mocks/shared"
 )
 
-var _ = Describe("users.Service", func() {
-	var s users.Service
+var _ = Describe("users.UsersService", func() {
+	var s interfaces.UsersService
 	var tg *sharedmocks.TagGenerator
 	var es *sharedmocks.EmailSender
 	var ur *usersmocks.Repository

@@ -2,17 +2,14 @@ package users
 
 import (
 	"github.com/jmoiron/sqlx"
+	"github.com/scribletop/scribletop-api/modules/interfaces"
 )
-
-type Repository interface {
-	FindByEmail(email string) (*UserWithPassword, error)
-}
 
 type repository struct {
 	db *sqlx.DB
 }
 
-func NewUsersRepository(db *sqlx.DB) Repository {
+func NewUsersRepository(db *sqlx.DB) interfaces.UsersRepository {
 	return &repository{db}
 }
 

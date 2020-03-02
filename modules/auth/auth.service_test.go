@@ -3,6 +3,7 @@ package auth_test
 import (
 	"database/sql"
 	"encoding/base64"
+	"github.com/scribletop/scribletop-api/modules/interfaces"
 
 	"github.com/dgrijalva/jwt-go/v4"
 	"golang.org/x/crypto/bcrypt"
@@ -18,7 +19,7 @@ import (
 
 var _ = Describe("AuthService", func() {
 	var ur *usersmocks.Repository
-	var s auth.Service
+	var s interfaces.AuthService
 	var res string
 	var resErr error
 

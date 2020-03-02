@@ -2,6 +2,7 @@ package users
 
 import (
 	"fmt"
+	"github.com/scribletop/scribletop-api/modules/interfaces"
 
 	"github.com/gin-gonic/gin"
 	"gopkg.in/go-playground/validator.v9"
@@ -12,10 +13,10 @@ import (
 )
 
 type userController struct {
-	us Service
+	us interfaces.UsersService
 }
 
-func NewUserController(us Service) controller.Controller {
+func NewUserController(us interfaces.UsersService) controller.Controller {
 	return &userController{us}
 }
 

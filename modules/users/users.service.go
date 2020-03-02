@@ -2,6 +2,7 @@ package users
 
 import (
 	"fmt"
+	"github.com/scribletop/scribletop-api/modules/interfaces"
 	"strings"
 
 	"github.com/jmoiron/sqlx"
@@ -10,18 +11,14 @@ import (
 	"github.com/scribletop/scribletop-api/shared"
 )
 
-type Service interface {
-	Create(user UserWithPassword) (User, error)
-}
-
 type service struct {
 	db *sqlx.DB
 	tg shared.TagGenerator
 	es shared.EmailSender
-	ur Repository
+	ur interfaces.UsersRepository
 }
 
-func NewUsersService(db *sqlx.DB, tg shared.TagGenerator, es shared.EmailSender, ur Repository) Service {
+func NewUsersService(db *sqlx.DB, tg shared.TagGenerator, es shared.EmailSender, ur interfaces.UsersRepository) interfaces.UsersService {
 	return &service{db, tg, es, ur}
 }
 

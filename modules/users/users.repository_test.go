@@ -2,6 +2,7 @@ package users_test
 
 import (
 	"database/sql"
+	"github.com/scribletop/scribletop-api/modules/interfaces"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
@@ -9,8 +10,8 @@ import (
 	"github.com/scribletop/scribletop-api/modules/users"
 )
 
-var _ = Describe("users.Repository", func() {
-	var r users.Repository
+var _ = Describe("users.UsersRepository", func() {
+	var r interfaces.UsersRepository
 	BeforeEach(func() {
 		r = users.NewUsersRepository(TestDB)
 	})

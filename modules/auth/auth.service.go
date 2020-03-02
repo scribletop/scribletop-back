@@ -4,18 +4,14 @@ import (
 	"crypto/rsa"
 	"encoding/base64"
 	"errors"
+	"github.com/scribletop/scribletop-api/modules/interfaces"
 	"time"
 
 	"github.com/dgrijalva/jwt-go/v4"
 	"golang.org/x/crypto/bcrypt"
 
 	"github.com/scribletop/scribletop-api/config"
-	"github.com/scribletop/scribletop-api/modules/users"
 )
-
-type Service interface {
-	Authenticate(email, password string) (string, error)
-}
 
 type jwtConfig struct {
 	JwtPublic  *rsa.PublicKey
@@ -29,12 +25,12 @@ type JwtClaims struct {
 
 type service struct {
 	c  jwtConfig
-	ur users.Repository
+	ur interfaces.UsersRepository
 }
 
 var ErrIncorrectPassword = errors.New("auth: incorrect password")
 
-func NewAuthService(ur users.Repository, c config.HttpConfig) Service {
+func NewAuthService(ur interfaces.UsersRepository, c config.HttpConfig) interfaces.AuthService {
 	pb, _ := base64.StdEncoding.DecodeString(c.JwtPublic)
 	pv, _ := base64.StdEncoding.DecodeString(c.JwtPrivate)
 	public, err := jwt.ParseRSAPublicKeyFromPEM(pb)
