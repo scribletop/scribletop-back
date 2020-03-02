@@ -2,7 +2,7 @@ package users
 
 import (
 	"fmt"
-	"github.com/scribletop/scribletop-api/modules/interfaces"
+	"github.com/scribletop/scribletop-api/modules/scribletop"
 
 	"github.com/gin-gonic/gin"
 	"gopkg.in/go-playground/validator.v9"
@@ -13,10 +13,10 @@ import (
 )
 
 type userController struct {
-	us interfaces.UsersService
+	us scribletop.UsersService
 }
 
-func NewUserController(us interfaces.UsersService) controller.Controller {
+func NewUserController(us scribletop.UsersService) controller.Controller {
 	return &userController{us}
 }
 
@@ -40,9 +40,9 @@ func (u *userController) create(c *gin.Context) {
 		return
 	}
 
-	res, err := u.us.Create(UserWithPassword{
+	res, err := u.us.Create(scribletop.UserWithPassword{
 		Password: json.Password,
-		User: User{
+		User: scribletop.User{
 			Tag:   json.Username,
 			Email: json.Email,
 		},

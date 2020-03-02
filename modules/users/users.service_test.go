@@ -3,7 +3,7 @@ package users_test
 import (
 	"errors"
 	"fmt"
-	"github.com/scribletop/scribletop-api/modules/interfaces"
+	"github.com/scribletop/scribletop-api/modules/scribletop"
 
 	"golang.org/x/crypto/bcrypt"
 
@@ -12,20 +12,20 @@ import (
 
 	"github.com/scribletop/scribletop-api/modules/users"
 
-	usersmocks "github.com/scribletop/scribletop-api/mocks/modules/users"
+	mocks "github.com/scribletop/scribletop-api/mocks/modules/scribletop"
 	sharedmocks "github.com/scribletop/scribletop-api/mocks/shared"
 )
 
 var _ = Describe("users.UsersService", func() {
-	var s interfaces.UsersService
+	var s scribletop.UsersService
 	var tg *sharedmocks.TagGenerator
 	var es *sharedmocks.EmailSender
-	var ur *usersmocks.Repository
+	var ur *mocks.UsersRepository
 
 	BeforeEach(func() {
 		tg = new(sharedmocks.TagGenerator)
 		es = new(sharedmocks.EmailSender)
-		ur = new(usersmocks.Repository)
+		ur = new(mocks.UsersRepository)
 		s = users.NewUsersService(TestDB, tg, es, ur)
 	})
 
@@ -37,16 +37,16 @@ var _ = Describe("users.UsersService", func() {
 	})
 
 	Context("creating a user", func() {
-		user := users.UserWithPassword{
+		user := scribletop.UserWithPassword{
 			Password: "password",
-			User: users.User{
+			User: scribletop.User{
 				Tag:   "joe",
 				Email: "joe@example.com",
 			},
 		}
 		var generatedTag string
 
-		var result users.User
+		var result scribletop.User
 		var resultErr error
 
 		JustBeforeEach(func() {
@@ -90,7 +90,7 @@ var _ = Describe("users.UsersService", func() {
 			Context("with a registered email", func() {
 				BeforeEach(func() {
 					_, _ = TestDB.Exec("INSERT INTO users (email, tag, password) VALUES ($1, $2, $3)", user.Email, user.Tag, "")
-					ur.On("FindByEmail", user.Email).Return(&users.UserWithPassword{User: users.User{Email: user.Email, Tag: "RealTag"}}, nil)
+					ur.On("FindByEmail", user.Email).Return(&scribletop.UserWithPassword{User: scribletop.User{Email: user.Email, Tag: "RealTag"}}, nil)
 					dst := fmt.Sprintf("%s <%s>", "RealTag", user.Email)
 					subject := "Someone tried to register with your email address"
 					es.On("SendEmail", dst, subject, "new-user-duplicate-email", struct {

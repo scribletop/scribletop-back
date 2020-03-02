@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
+	"github.com/scribletop/scribletop-api/modules/scribletop"
 	"net/http"
 	"net/http/httptest"
 
@@ -16,17 +17,17 @@ import (
 	"github.com/scribletop/scribletop-api/modules/users"
 	"github.com/scribletop/scribletop-api/scribletop-apitest"
 
-	usersmocks "github.com/scribletop/scribletop-api/mocks/modules/users"
+	mocks "github.com/scribletop/scribletop-api/mocks/modules/scribletop"
 )
 
 var _ = Describe("users.Controller", func() {
 	var r *gin.Engine
 	var w *httptest.ResponseRecorder
-	var us *usersmocks.Service
+	var us *mocks.UsersService
 
 	BeforeEach(func() {
 		w, r = scribletop_apitest.SetupTestRouter()
-		us = new(usersmocks.Service)
+		us = new(mocks.UsersService)
 		c := users.NewUserController(us)
 		c.RegisterRoutes(r.Group("/users"))
 	})
@@ -52,10 +53,10 @@ var _ = Describe("users.Controller", func() {
 
 			Context("and successful response", func() {
 				BeforeEach(func() {
-					us.On("Create", users.UserWithPassword{
-						User:     users.User{Tag: "joe", Email: "joe@example.com"},
+					us.On("Create", scribletop.UserWithPassword{
+						User:     scribletop.User{Tag: "joe", Email: "joe@example.com"},
 						Password: "password",
-					}).Return(users.User{Tag: "joe#1111", Email: "joe@example.com"}, nil)
+					}).Return(scribletop.User{Tag: "joe#1111", Email: "joe@example.com"}, nil)
 				})
 
 				It("should respond with a 201", func() {
@@ -77,10 +78,10 @@ var _ = Describe("users.Controller", func() {
 
 			Context("With all tags registered", func() {
 				BeforeEach(func() {
-					us.On("Create", users.UserWithPassword{
-						User:     users.User{Tag: "joe", Email: "joe@example.com"},
+					us.On("Create", scribletop.UserWithPassword{
+						User:     scribletop.User{Tag: "joe", Email: "joe@example.com"},
 						Password: "password",
-					}).Return(users.User{}, errors.New("no candidate found"))
+					}).Return(scribletop.User{}, errors.New("no candidate found"))
 				})
 
 				It("should tell him to be creative", func() {

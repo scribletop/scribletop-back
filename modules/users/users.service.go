@@ -2,7 +2,7 @@ package users
 
 import (
 	"fmt"
-	"github.com/scribletop/scribletop-api/modules/interfaces"
+	"github.com/scribletop/scribletop-api/modules/scribletop"
 	"strings"
 
 	"github.com/jmoiron/sqlx"
@@ -15,18 +15,18 @@ type service struct {
 	db *sqlx.DB
 	tg shared.TagGenerator
 	es shared.EmailSender
-	ur interfaces.UsersRepository
+	ur scribletop.UsersRepository
 }
 
-func NewUsersService(db *sqlx.DB, tg shared.TagGenerator, es shared.EmailSender, ur interfaces.UsersRepository) interfaces.UsersService {
+func NewUsersService(db *sqlx.DB, tg shared.TagGenerator, es shared.EmailSender, ur scribletop.UsersRepository) scribletop.UsersService {
 	return &service{db, tg, es, ur}
 }
 
-func (s *service) Create(user UserWithPassword) (User, error) {
+func (s *service) Create(user scribletop.UserWithPassword) (scribletop.User, error) {
 	user.Tag = fmt.Sprintf("%s#%s", user.Tag, s.tg.Random(4))
 	hashed, err := bcrypt.GenerateFromPassword([]byte(user.Password), 10)
 	if err != nil {
-		return User{}, err
+		return scribletop.User{}, err
 	}
 	user.Password = string(hashed)
 
@@ -40,18 +40,18 @@ func (s *service) Create(user UserWithPassword) (User, error) {
 		Link string
 	}{Link: "__ROOT_URL__/auth/validate-email"})
 
-	return User{
+	return scribletop.User{
 		Tag:   user.Tag,
 		Email: user.Email,
 	}, nil
 }
 
-func (s *service) handleCreateError(err error, user UserWithPassword) (User, error) {
+func (s *service) handleCreateError(err error, user scribletop.UserWithPassword) (scribletop.User, error) {
 	if strings.Contains(err.Error(), "duplicate") {
 		if strings.Contains(err.Error(), "email") {
 			u, err := s.ur.FindByEmail(user.Email)
 			if err != nil {
-				return User{}, err
+				return scribletop.User{}, err
 			}
 
 			dst := fmt.Sprintf("%s <%s>", u.Tag, u.Email)
@@ -60,7 +60,7 @@ func (s *service) handleCreateError(err error, user UserWithPassword) (User, err
 				Tag  string
 			}{Link: "__ROOT_URL__/auth/reset-password?email=" + u.Email, Tag: u.Tag})
 
-			return User{
+			return scribletop.User{
 				Tag:   user.Tag,
 				Email: user.Email,
 			}, nil
@@ -69,20 +69,20 @@ func (s *service) handleCreateError(err error, user UserWithPassword) (User, err
 		if strings.Contains(err.Error(), "tag") {
 			tag, err := s.insertWithNewTag(user)
 			if err != nil {
-				return User{}, err
+				return scribletop.User{}, err
 			}
 
-			return User{
+			return scribletop.User{
 				Tag:   tag,
 				Email: user.Email,
 			}, nil
 		}
 	}
 
-	return User{}, err
+	return scribletop.User{}, err
 }
 
-func (s *service) insertWithNewTag(user UserWithPassword) (string, error) {
+func (s *service) insertWithNewTag(user scribletop.UserWithPassword) (string, error) {
 	user.Tag = strings.Split(user.Tag, "#")[0] + "%"
 	var unavailableTags []string
 	err := s.db.Select(&unavailableTags, "SELECT RIGHT(tag, 4) FROM users WHERE tag LIKE $1", user.Tag)

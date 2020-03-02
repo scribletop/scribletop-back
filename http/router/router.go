@@ -31,7 +31,7 @@ func createMailSender(c config.Config) shared.EmailSender {
 		mailClient = shared.NewMailtrapClient(c.Mail)
 	}
 
-	sender, err := shared.NewEmailSender(c.Mail.Sender, mailClient)
+	sender, err := shared.NewEmailSender(c.Mail.Sender, c.FrontURL, mailClient)
 	if err != nil {
 		panic(err)
 	}

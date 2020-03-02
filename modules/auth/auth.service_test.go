@@ -3,7 +3,6 @@ package auth_test
 import (
 	"database/sql"
 	"encoding/base64"
-	"github.com/scribletop/scribletop-api/modules/interfaces"
 
 	"github.com/dgrijalva/jwt-go/v4"
 	"golang.org/x/crypto/bcrypt"
@@ -12,19 +11,19 @@ import (
 	. "github.com/onsi/gomega"
 
 	"github.com/scribletop/scribletop-api/modules/auth"
-	"github.com/scribletop/scribletop-api/modules/users"
+	"github.com/scribletop/scribletop-api/modules/scribletop"
 
-	usersmocks "github.com/scribletop/scribletop-api/mocks/modules/users"
+	mocks "github.com/scribletop/scribletop-api/mocks/modules/scribletop"
 )
 
 var _ = Describe("AuthService", func() {
-	var ur *usersmocks.Repository
-	var s interfaces.AuthService
+	var ur *mocks.UsersRepository
+	var s scribletop.AuthService
 	var res string
 	var resErr error
 
 	BeforeEach(func() {
-		ur = new(usersmocks.Repository)
+		ur = new(mocks.UsersRepository)
 		s = auth.NewAuthService(ur, TestConfig.Http)
 	})
 
@@ -33,7 +32,7 @@ var _ = Describe("AuthService", func() {
 	})
 
 	Context("authenticating", func() {
-		var fbe1 *users.UserWithPassword
+		var fbe1 *scribletop.UserWithPassword
 		var fbe2 error
 		tag := "john#1111"
 		email := "john@example.com"
@@ -53,7 +52,7 @@ var _ = Describe("AuthService", func() {
 		Context("with existing user", func() {
 			Context("and valid password", func() {
 				BeforeEach(func() {
-					fbe1 = &users.UserWithPassword{Password: password, User: users.User{Email: email, Tag: tag}}
+					fbe1 = &scribletop.UserWithPassword{Password: password, User: scribletop.User{Email: email, Tag: tag}}
 				})
 
 				It("should create a valid JWT for the user", func() {
@@ -71,7 +70,7 @@ var _ = Describe("AuthService", func() {
 
 			Context("and invalid password", func() {
 				BeforeEach(func() {
-					fbe1 = &users.UserWithPassword{Password: "incorrect", User: users.User{Email: email, Tag: tag}}
+					fbe1 = &scribletop.UserWithPassword{Password: "incorrect", User: scribletop.User{Email: email, Tag: tag}}
 				})
 
 				It("should fail with ErrIncorrectPassword", func() {

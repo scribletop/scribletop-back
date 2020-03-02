@@ -17,17 +17,17 @@ import (
 	"github.com/scribletop/scribletop-api/modules/auth"
 	"github.com/scribletop/scribletop-api/scribletop-apitest"
 
-	authmocks "github.com/scribletop/scribletop-api/mocks/modules/auth"
+	mocks "github.com/scribletop/scribletop-api/mocks/modules/scribletop"
 )
 
 var _ = Describe("auth.Controller", func() {
 	var r *gin.Engine
 	var w *httptest.ResponseRecorder
-	var as *authmocks.Service
+	var as *mocks.AuthService
 
 	BeforeEach(func() {
 		w, r = scribletop_apitest.SetupTestRouter()
-		as = new(authmocks.Service)
+		as = new(mocks.AuthService)
 		c := auth.NewAuthController(as)
 		c.RegisterRoutes(r.Group("/auth"))
 	})
