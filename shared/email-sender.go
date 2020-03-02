@@ -29,13 +29,14 @@ type EmailClient interface {
 
 type emailSender struct {
 	senderEmail string
+	rootUrl     string
 	client      EmailClient
 }
 
 var emails = map[string]*template.Template{}
 
-func NewEmailSender(senderEmail string, client EmailClient) (EmailSender, error) {
-	return &emailSender{senderEmail, client},
+func NewEmailSender(senderEmail string, rootUrl string, client EmailClient) (EmailSender, error) {
+	return &emailSender{senderEmail, rootUrl, client},
 		pkger.Walk("/emails", func(path string, info os.FileInfo, err error) error {
 			if err != nil {
 				return err
@@ -79,7 +80,7 @@ func (es *emailSender) SendEmail(dest, subject, name string, bindings interface{
 	}
 
 	html := w.String()
-	txt, err := html2text.FromString(html)
+	txt, err := html2text.FromString(strings.ReplaceAll(html, "__ROOT_URL__", es.rootUrl))
 	if err != nil {
 		return err
 	}

@@ -64,7 +64,7 @@ var _ = Describe("users.Service", func() {
 					dst := fmt.Sprintf("%s <%s>", user.Tag+"#"+generatedTag, user.Email)
 					es.On("SendEmail", dst, "Registration complete!", "new-user", struct {
 						Link string
-					}{Link: ""}).Return(nil)
+					}{Link: "__ROOT_URL__/auth/validate-email"}).Return(nil)
 				})
 
 				It("adds a tag to the username", func() {
@@ -95,7 +95,7 @@ var _ = Describe("users.Service", func() {
 					es.On("SendEmail", dst, subject, "new-user-duplicate-email", struct {
 						Link string
 						Tag  string
-					}{Link: "", Tag: "RealTag"}).Return(nil)
+					}{Link: "__ROOT_URL__/auth/reset-password?email=" + user.Email, Tag: "RealTag"}).Return(nil)
 				})
 
 				It("should not add an user to the database", func() {

@@ -6,6 +6,7 @@ export MAIL_HOST=smtp.mailtrap.io
 export MAIL_PORT=25
 export MAIL_USERNAME=$(shell cat ./secrets/mailtrap.username)
 export MAIL_PASSWORD=$(shell cat ./secrets/mailtrap.password)
+export FRONT_URL=http://localhost:4200/
 
 all: build test-with-cover
 

@@ -41,7 +41,7 @@ func (s *service) Create(user UserWithPassword) (User, error) {
 	dst := fmt.Sprintf("%s <%s>", user.Tag, user.Email)
 	_ = s.es.SendEmail(dst, "Registration complete!", "new-user", struct {
 		Link string
-	}{Link: ""})
+	}{Link: "__ROOT_URL__/auth/validate-email"})
 
 	return User{
 		Tag:   user.Tag,
@@ -61,7 +61,7 @@ func (s *service) handleCreateError(err error, user UserWithPassword) (User, err
 			_ = s.es.SendEmail(dst, "Someone tried to register with your email address", "new-user-duplicate-email", struct {
 				Link string
 				Tag  string
-			}{Link: "", Tag: u.Tag})
+			}{Link: "__ROOT_URL__/auth/reset-password?email=" + u.Email, Tag: u.Tag})
 
 			return User{
 				Tag:   user.Tag,

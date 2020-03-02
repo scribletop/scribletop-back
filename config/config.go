@@ -2,6 +2,7 @@ package config
 
 import (
 	"fmt"
+	"net/url"
 	"os"
 	"strconv"
 	"strings"
@@ -36,6 +37,7 @@ type MailConfig struct {
 }
 
 type Config struct {
+	FrontURL string
 	Database DatabaseConfig
 	Http     HttpConfig
 	Mail     MailConfig
@@ -45,9 +47,10 @@ type Config struct {
 
 func Load() Config {
 	config := Config{
+		os.Getenv("FRONT_URL"),
 		DatabaseConfig{"postgres", "password", "localhost", "scribletop"},
 		HttpConfig{Port: 8080, Cors: HttpCorsConfig{Allow: true, Url: "http://localhost:4200"}},
-		MailConfig{},
+		MailConfig{Sender: ""},
 		"local",
 		false,
 	}
@@ -102,6 +105,10 @@ func Load() Config {
 	config.Mail.Password = strings.TrimSpace(os.Getenv("MAIL_PASSWORD"))
 	config.Mail.ApiKey = strings.TrimSpace(os.Getenv("MAIL_API_KEY"))
 	config.Mail.Sender = strings.TrimSpace(os.Getenv("MAIL_SENDER"))
+	if config.Mail.Sender == "" {
+		u, _ := url.Parse(config.FrontURL)
+		config.Mail.Sender = "no-reply@" + u.Host
+	}
 
 	return config
 }
@@ -109,6 +116,7 @@ func Load() Config {
 func LoadTest(database string) Config {
 	mailPort, _ := strconv.Atoi(os.Getenv("MAIL_PORT"))
 	return Config{
+		"http://localhost:4200/",
 		DatabaseConfig{"postgres", "password", "localhost", database},
 		HttpConfig{
 			Port:       8080,
@@ -122,6 +130,7 @@ func LoadTest(database string) Config {
 			Username: strings.TrimSpace(os.Getenv("MAIL_USERNAME")),
 			Password: strings.TrimSpace(os.Getenv("MAIL_PASSWORD")),
 			ApiKey:   strings.TrimSpace(os.Getenv("MAIL_API_KEY")),
+			Sender:   "no-reply@localhost",
 		},
 		"test",
 		false,
@@ -145,5 +154,7 @@ func Print(c Config) {
 	} else {
 		fmt.Printf("	CORS:    NO\n")
 	}
+	fmt.Printf("Mail:\n")
+	fmt.Printf("	Using SENDGRID: %t\n", c.Mail.ApiKey != "")
 	fmt.Printf("------------------------------------------------\n")
 }
