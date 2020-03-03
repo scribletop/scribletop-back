@@ -1,10 +1,13 @@
 package router
 
 import (
+	"crypto/sha512"
+	"fmt"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/jmoiron/sqlx"
 	"github.com/sendgrid/sendgrid-go"
+	"time"
 
 	"github.com/scribletop/scribletop-api/config"
 	"github.com/scribletop/scribletop-api/modules/auth"
@@ -14,6 +17,7 @@ import (
 
 func RegisterControllers(r *gin.Engine, db *sqlx.DB, c config.Config) {
 	sender := createMailSender(c)
+	_ = auth.NewEmailValidationService(fmt.Sprintf("%x", sha512.Sum512([]byte(c.Http.JwtPrivate))), time.Now)
 
 	usersRepository := users.NewUsersRepository(db)
 	usersService := users.NewUsersService(db, shared.NewTagGenerator(), sender, usersRepository)

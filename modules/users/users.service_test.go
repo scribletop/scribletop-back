@@ -3,12 +3,13 @@ package users_test
 import (
 	"errors"
 	"fmt"
-	"github.com/scribletop/scribletop-api/modules/scribletop"
 
 	"golang.org/x/crypto/bcrypt"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
+
+	. "github.com/scribletop/scribletop-api/modules/scribletop"
 
 	"github.com/scribletop/scribletop-api/modules/users"
 
@@ -17,7 +18,7 @@ import (
 )
 
 var _ = Describe("users.UsersService", func() {
-	var s scribletop.UsersService
+	var s UsersService
 	var tg *sharedmocks.TagGenerator
 	var es *sharedmocks.EmailSender
 	var ur *mocks.UsersRepository
@@ -37,16 +38,16 @@ var _ = Describe("users.UsersService", func() {
 	})
 
 	Context("creating a user", func() {
-		user := scribletop.UserWithPassword{
+		user := UserWithPassword{
 			Password: "password",
-			User: scribletop.User{
+			User: User{
 				Tag:   "joe",
 				Email: "joe@example.com",
 			},
 		}
 		var generatedTag string
 
-		var result scribletop.User
+		var result User
 		var resultErr error
 
 		JustBeforeEach(func() {
@@ -90,7 +91,7 @@ var _ = Describe("users.UsersService", func() {
 			Context("with a registered email", func() {
 				BeforeEach(func() {
 					_, _ = TestDB.Exec("INSERT INTO users (email, tag, password) VALUES ($1, $2, $3)", user.Email, user.Tag, "")
-					ur.On("FindByEmail", user.Email).Return(&scribletop.UserWithPassword{User: scribletop.User{Email: user.Email, Tag: "RealTag"}}, nil)
+					ur.On("FindByEmail", user.Email).Return(&UserWithPassword{User: User{Email: user.Email, Tag: "RealTag"}}, nil)
 					dst := fmt.Sprintf("%s <%s>", "RealTag", user.Email)
 					subject := "Someone tried to register with your email address"
 					es.On("SendEmail", dst, subject, "new-user-duplicate-email", struct {

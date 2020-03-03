@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
-	"github.com/scribletop/scribletop-api/modules/scribletop"
 	"net/http"
 	"net/http/httptest"
 
@@ -12,6 +11,8 @@ import (
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
+
+	. "github.com/scribletop/scribletop-api/modules/scribletop"
 
 	scribletoperrors "github.com/scribletop/scribletop-api/http/errors"
 	"github.com/scribletop/scribletop-api/modules/users"
@@ -53,10 +54,10 @@ var _ = Describe("users.Controller", func() {
 
 			Context("and successful response", func() {
 				BeforeEach(func() {
-					us.On("Create", scribletop.UserWithPassword{
-						User:     scribletop.User{Tag: "joe", Email: "joe@example.com"},
+					us.On("Create", UserWithPassword{
+						User:     User{Tag: "joe", Email: "joe@example.com"},
 						Password: "password",
-					}).Return(scribletop.User{Tag: "joe#1111", Email: "joe@example.com"}, nil)
+					}).Return(User{Tag: "joe#1111", Email: "joe@example.com"}, nil)
 				})
 
 				It("should respond with a 201", func() {
@@ -78,10 +79,10 @@ var _ = Describe("users.Controller", func() {
 
 			Context("With all tags registered", func() {
 				BeforeEach(func() {
-					us.On("Create", scribletop.UserWithPassword{
-						User:     scribletop.User{Tag: "joe", Email: "joe@example.com"},
+					us.On("Create", UserWithPassword{
+						User:     User{Tag: "joe", Email: "joe@example.com"},
 						Password: "password",
-					}).Return(scribletop.User{}, errors.New("no candidate found"))
+					}).Return(User{}, errors.New("no candidate found"))
 				})
 
 				It("should tell him to be creative", func() {

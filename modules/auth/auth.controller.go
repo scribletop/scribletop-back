@@ -2,20 +2,21 @@ package auth
 
 import (
 	"fmt"
-	"github.com/scribletop/scribletop-api/modules/scribletop"
 
 	"github.com/gin-gonic/gin"
 	"gopkg.in/go-playground/validator.v9"
+
+	. "github.com/scribletop/scribletop-api/modules/scribletop"
 
 	"github.com/scribletop/scribletop-api/http/controller"
 	"github.com/scribletop/scribletop-api/http/errors"
 )
 
 type authController struct {
-	as scribletop.AuthService
+	as AuthService
 }
 
-func NewAuthController(as scribletop.AuthService) controller.Controller {
+func NewAuthController(as AuthService) controller.Controller {
 	return &authController{as}
 }
 

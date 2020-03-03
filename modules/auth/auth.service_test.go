@@ -10,15 +10,16 @@ import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 
+	. "github.com/scribletop/scribletop-api/modules/scribletop"
+
 	"github.com/scribletop/scribletop-api/modules/auth"
-	"github.com/scribletop/scribletop-api/modules/scribletop"
 
 	mocks "github.com/scribletop/scribletop-api/mocks/modules/scribletop"
 )
 
 var _ = Describe("AuthService", func() {
 	var ur *mocks.UsersRepository
-	var s scribletop.AuthService
+	var s AuthService
 	var res string
 	var resErr error
 
@@ -32,7 +33,7 @@ var _ = Describe("AuthService", func() {
 	})
 
 	Context("authenticating", func() {
-		var fbe1 *scribletop.UserWithPassword
+		var fbe1 *UserWithPassword
 		var fbe2 error
 		tag := "john#1111"
 		email := "john@example.com"
@@ -52,7 +53,7 @@ var _ = Describe("AuthService", func() {
 		Context("with existing user", func() {
 			Context("and valid password", func() {
 				BeforeEach(func() {
-					fbe1 = &scribletop.UserWithPassword{Password: password, User: scribletop.User{Email: email, Tag: tag}}
+					fbe1 = &UserWithPassword{Password: password, User: User{Email: email, Tag: tag}}
 				})
 
 				It("should create a valid JWT for the user", func() {
@@ -70,7 +71,7 @@ var _ = Describe("AuthService", func() {
 
 			Context("and invalid password", func() {
 				BeforeEach(func() {
-					fbe1 = &scribletop.UserWithPassword{Password: "incorrect", User: scribletop.User{Email: email, Tag: tag}}
+					fbe1 = &UserWithPassword{Password: "incorrect", User: User{Email: email, Tag: tag}}
 				})
 
 				It("should fail with ErrIncorrectPassword", func() {
