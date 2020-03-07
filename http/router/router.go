@@ -17,13 +17,13 @@ import (
 
 func RegisterControllers(r *gin.Engine, db *sqlx.DB, c config.Config) {
 	sender := createMailSender(c)
-	_ = auth.NewEmailValidationService(fmt.Sprintf("%x", sha512.Sum512([]byte(c.Http.JwtPrivate))), time.Now)
+	emailValidator := auth.NewEmailValidator(fmt.Sprintf("%x", sha512.Sum512([]byte(c.Http.JwtPrivate))), time.Now)
 
 	usersRepository := users.NewUsersRepository(db)
-	usersService := users.NewUsersService(db, shared.NewTagGenerator(), sender, usersRepository)
+	usersService := users.NewUsersService(db, shared.NewTagGenerator(), sender, usersRepository, emailValidator)
 	users.NewUserController(usersService).RegisterRoutes(r.Group("/users"))
 
-	authService := auth.NewAuthService(usersRepository, c.Http)
+	authService := auth.NewAuthService(usersRepository, emailValidator, c.Http)
 	auth.NewAuthController(authService).RegisterRoutes(r.Group("/auth"))
 }
 

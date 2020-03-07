@@ -12,6 +12,20 @@ type UsersRepository struct {
 	mock.Mock
 }
 
+// Delete provides a mock function with given fields: id
+func (_m *UsersRepository) Delete(id int) error {
+	ret := _m.Called(id)
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(int) error); ok {
+		r0 = rf(id)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
 // FindByEmail provides a mock function with given fields: email
 func (_m *UsersRepository) FindByEmail(email string) (*scribletop.UserWithPassword, error) {
 	ret := _m.Called(email)
@@ -33,4 +47,18 @@ func (_m *UsersRepository) FindByEmail(email string) (*scribletop.UserWithPasswo
 	}
 
 	return r0, r1
+}
+
+// Validate provides a mock function with given fields: id
+func (_m *UsersRepository) Validate(id int) error {
+	ret := _m.Called(id)
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(int) error); ok {
+		r0 = rf(id)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
 }

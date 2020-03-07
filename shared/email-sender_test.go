@@ -64,6 +64,7 @@ var _ = Describe("Email Sender", func() {
 			m.On("Send", mock.Anything).Return(nil, nil)
 			es.SendEmail("foo#1231 <foo@example.com>", "bar", "new-user", struct{ Link string }{Link: "__ROOT_URL__/__ROOT_URL__wqsax"})
 			Expect(m.Calls[0].Arguments.Get(0).(*mail.SGMailV3).Content[0].Value).NotTo(ContainSubstring("__ROOT_URL__"))
+			Expect(m.Calls[0].Arguments.Get(0).(*mail.SGMailV3).Content[1].Value).NotTo(ContainSubstring("__ROOT_URL__"))
 			Expect(m.Calls[0].Arguments.Get(0).(*mail.SGMailV3).Content[0].Value).To(ContainSubstring("http://localhost:8080/http://localhost:8080wqsax"))
 		})
 	})

@@ -79,8 +79,8 @@ func (es *emailSender) SendEmail(dest, subject, name string, bindings interface{
 		return err
 	}
 
-	html := w.String()
-	txt, err := html2text.FromString(strings.ReplaceAll(html, "__ROOT_URL__", es.rootUrl))
+	html := strings.ReplaceAll(w.String(), "__ROOT_URL__", es.rootUrl)
+	txt, err := html2text.FromString(html)
 	if err != nil {
 		return err
 	}

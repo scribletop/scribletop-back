@@ -27,11 +27,13 @@ type JwtClaims struct {
 type service struct {
 	c  jwtConfig
 	ur UsersRepository
+	ev EmailValidator
 }
 
 var ErrIncorrectPassword = errors.New("auth: incorrect password")
+var ErrAlreadyValidated = errors.New("auth: user already validated")
 
-func NewAuthService(ur UsersRepository, c config.HttpConfig) AuthService {
+func NewAuthService(ur UsersRepository, ev EmailValidator, c config.HttpConfig) AuthService {
 	pb, _ := base64.StdEncoding.DecodeString(c.JwtPublic)
 	pv, _ := base64.StdEncoding.DecodeString(c.JwtPrivate)
 	public, err := jwt.ParseRSAPublicKeyFromPEM(pb)
@@ -47,7 +49,7 @@ func NewAuthService(ur UsersRepository, c config.HttpConfig) AuthService {
 	return &service{jwtConfig{
 		JwtPublic:  public,
 		JwtPrivate: private,
-	}, ur}
+	}, ur, ev}
 }
 
 func (s *service) Authenticate(email, password string) (string, error) {
@@ -71,4 +73,31 @@ func (s *service) Authenticate(email, password string) (string, error) {
 	}
 	token := jwt.NewWithClaims(jwt.SigningMethodRS256, claims)
 	return token.SignedString(s.c.JwtPrivate)
+}
+
+func (s *service) Validate(email, token string) error {
+	u, err := s.ur.FindByEmail(email)
+	if err != nil {
+		return ErrTokenExpired
+	}
+
+	if err = s.ev.Validate(email, token); err != nil {
+		if err == ErrTokenExpired && !u.Validated {
+			err = s.ur.Delete(u.Id)
+			if err == nil {
+				err = ErrTokenExpired
+			}
+		}
+		return err
+	}
+
+	if u.Validated {
+		return ErrAlreadyValidated
+	}
+
+	if err = s.ur.Validate(u.Id); err != nil {
+		return ErrTokenExpired
+	}
+
+	return nil
 }

@@ -1,5 +1,6 @@
 package auth
 
+import "C"
 import (
 	"fmt"
 
@@ -21,7 +22,8 @@ func NewAuthController(as AuthService) controller.Controller {
 }
 
 func (a *authController) RegisterRoutes(router *gin.RouterGroup) () {
-	router.POST("/", a.create)
+	router.POST("/", a.authenticate)
+	router.POST("/email-validation", a.emailValidation)
 }
 
 type createRequest struct {
@@ -33,9 +35,9 @@ type createResponse struct {
 	Jwt string `json:"jwt"`
 }
 
-func (a *authController) create(c *gin.Context) {
+func (a *authController) authenticate(c *gin.Context) {
 	var json createRequest
-	if err := controller.ParseRequest(c, &json, a.validateCreate); err != nil {
+	if err := controller.ParseRequest(c, &json, a.validateAuthenticate); err != nil {
 		return
 	}
 
@@ -48,10 +50,41 @@ func (a *authController) create(c *gin.Context) {
 	c.JSON(201, createResponse{Jwt: jwt})
 }
 
-func (a *authController) validateCreate(err validator.FieldError, f string) string {
+func (a *authController) validateAuthenticate(err validator.FieldError, f string) string {
 	if err.Tag() == "required" {
 		return fmt.Sprintf("Please fill your %s.", f)
 	}
 
 	panic("unhandled error message")
+}
+
+type emailValidationRequest struct {
+	Email string `json:"email" binding:"required"`
+	Token string `json:"token" binding:"required"`
+}
+
+func (a *authController) emailValidation(c *gin.Context) {
+	var json emailValidationRequest
+	if err := controller.ParseRequest(c, &json, a.validateEmailValidation); err != nil {
+		return
+	}
+
+	if err := a.as.Validate(json.Email, json.Token); err != nil {
+		switch err {
+		case ErrTokenExpired:
+			c.JSON(403, errors.Error{
+				Message: "This token has expired, which basically means your account does not exist anymore. Feel free to authenticate a new one!"})
+			break
+		case ErrTokenInvalid:
+			c.JSON(403, errors.Error{
+				Message: "This token is invalid. This incident will be reported. Right?",
+			})
+		}
+	} else {
+		c.JSON(204, nil)
+	}
+}
+
+func (a *authController) validateEmailValidation(_ validator.FieldError, name string) string {
+	return fmt.Sprintf("The field %s is required.", name)
 }

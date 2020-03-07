@@ -29,3 +29,17 @@ func (_m *AuthService) Authenticate(email string, password string) (string, erro
 
 	return r0, r1
 }
+
+// Validate provides a mock function with given fields: email, token
+func (_m *AuthService) Validate(email string, token string) error {
+	ret := _m.Called(email, token)
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(string, string) error); ok {
+		r0 = rf(email, token)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}

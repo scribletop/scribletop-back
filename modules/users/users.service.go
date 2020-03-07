@@ -2,6 +2,7 @@ package users
 
 import (
 	"fmt"
+	"net/url"
 	"strings"
 
 	"github.com/jmoiron/sqlx"
@@ -17,10 +18,11 @@ type service struct {
 	tg shared.TagGenerator
 	es shared.EmailSender
 	ur UsersRepository
+	ev EmailValidator
 }
 
-func NewUsersService(db *sqlx.DB, tg shared.TagGenerator, es shared.EmailSender, ur UsersRepository) UsersService {
-	return &service{db, tg, es, ur}
+func NewUsersService(db *sqlx.DB, tg shared.TagGenerator, es shared.EmailSender, ur UsersRepository, ev EmailValidator) UsersService {
+	return &service{db, tg, es, ur, ev}
 }
 
 func (s *service) Create(user UserWithPassword) (User, error) {
@@ -39,7 +41,7 @@ func (s *service) Create(user UserWithPassword) (User, error) {
 	dst := fmt.Sprintf("%s <%s>", user.Tag, user.Email)
 	_ = s.es.SendEmail(dst, "Registration complete!", "new-user", struct {
 		Link string
-	}{Link: "__ROOT_URL__/auth/validate-email"})
+	}{Link: "__ROOT_URL__/auth/validate-email?token=" + s.ev.GenerateToken(user.Email) + "&email=" + url.QueryEscape(user.Email)})
 
 	return User{
 		Tag:   user.Tag,

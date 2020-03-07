@@ -3,6 +3,7 @@ package auth_test
 import (
 	"database/sql"
 	"encoding/base64"
+	"github.com/scribletop/scribletop-api/database"
 
 	"github.com/dgrijalva/jwt-go/v4"
 	"golang.org/x/crypto/bcrypt"
@@ -19,20 +20,23 @@ import (
 
 var _ = Describe("AuthService", func() {
 	var ur *mocks.UsersRepository
+	var ev *mocks.EmailValidator
 	var s AuthService
-	var res string
-	var resErr error
 
 	BeforeEach(func() {
 		ur = new(mocks.UsersRepository)
-		s = auth.NewAuthService(ur, TestConfig.Http)
+		ev = new(mocks.EmailValidator)
+		s = auth.NewAuthService(ur, ev, TestConfig.Http)
 	})
 
 	AfterEach(func() {
 		ur.AssertExpectations(GinkgoT())
+		ev.AssertExpectations(GinkgoT())
 	})
 
 	Context("authenticating", func() {
+		var res string
+		var resErr error
 		var fbe1 *UserWithPassword
 		var fbe2 error
 		tag := "john#1111"
@@ -56,7 +60,7 @@ var _ = Describe("AuthService", func() {
 					fbe1 = &UserWithPassword{Password: password, User: User{Email: email, Tag: tag}}
 				})
 
-				It("should create a valid JWT for the user", func() {
+				It("should authenticate a valid JWT for the user", func() {
 					Expect(resErr).NotTo(HaveOccurred())
 					claims := auth.JwtClaims{}
 					tkn, err := jwt.ParseWithClaims(res, &claims, func(token *jwt.Token) (interface{}, error) {
@@ -91,6 +95,104 @@ var _ = Describe("AuthService", func() {
 				Expect(res).To(Equal(""))
 				Expect(resErr).To(HaveOccurred())
 				Expect(resErr).To(Equal(sql.ErrNoRows))
+			})
+		})
+	})
+
+	Context("validating an email", func() {
+		var token string
+		var email string
+		var err error
+		var fbe1 *UserWithPassword
+		var fbe2 error
+
+		JustBeforeEach(func() {
+			ur.On("FindByEmail", email).Return(
+				fbe1,
+				fbe2,
+			)
+			err = s.Validate(email, token)
+		})
+
+		Context("with an existing user", func() {
+			Context("and a valid token", func() {
+				BeforeEach(func() {
+					token = "valid"
+					email = "valid@example.com"
+					ev.On("Validate", email, token).Return(nil)
+				})
+
+				Context("and the user is not validated", func () {
+					BeforeEach(func () {
+						fbe1 = &UserWithPassword{User: User{BaseModel: database.BaseModel{Id: 1}, Validated: false}}
+						ur.On("Validate", 1).Return(nil)
+					})
+					It("returns nil", func() { Expect(err).To(BeNil()) })
+				})
+
+				Context("and the user is already validated", func () {
+					BeforeEach(func () { fbe1 = &UserWithPassword{User: User{Validated: true}}})
+					It("returns an already validated error", func() {
+						Expect(err).To(HaveOccurred())
+						Expect(err).To(Equal(auth.ErrAlreadyValidated))
+					})
+				})
+			})
+
+			Context("and an invalid token", func() {
+				BeforeEach(func() {
+					token = "invalid"
+					email = "valid@example.com"
+					ev.On("Validate", email, token).Return(auth.ErrTokenInvalid)
+				})
+
+				It("returns a ErrTokenInvalid", func() {
+					Expect(err).To(HaveOccurred())
+					Expect(err).To(Equal(auth.ErrTokenInvalid))
+				})
+			})
+
+			Context("and an expired token", func() {
+				Context("on a already valid user", func () {
+					BeforeEach(func() {
+						token = "expired"
+						email = "valid@example.com"
+						ev.On("Validate", email, token).Return(auth.ErrTokenExpired)
+						fbe1 = &UserWithPassword{User: User{BaseModel: database.BaseModel{Id: 1}, Validated: true}}
+					})
+
+					It("returns a ErrTokenExpired", func() {
+						Expect(err).To(HaveOccurred())
+						Expect(err).To(Equal(auth.ErrTokenExpired))
+					})
+				})
+
+				Context("on a invalidated email", func () {
+					BeforeEach(func() {
+						token = "expired"
+						email = "invalid@example.com"
+						ev.On("Validate", email, token).Return(auth.ErrTokenExpired)
+						fbe1 = &UserWithPassword{User: User{BaseModel: database.BaseModel{Id: 1}, Validated: false}}
+						ur.On("Delete", 1).Return(nil)
+					})
+
+					It("returns a ErrTokenExpired", func() {
+						Expect(err).To(HaveOccurred())
+						Expect(err).To(Equal(auth.ErrTokenExpired))
+					})
+				})
+			})
+		})
+
+		Context("with an invalid user", func() {
+			BeforeEach(func() {
+				email = "invalid@example.com"
+				fbe2 = sql.ErrNoRows
+			})
+
+			It("returns ErrTokenInvalid", func() {
+				Expect(err).To(HaveOccurred())
+				Expect(err).To(Equal(auth.ErrTokenExpired))
 			})
 		})
 	})

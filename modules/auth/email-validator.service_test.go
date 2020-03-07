@@ -12,14 +12,14 @@ import (
 	"github.com/scribletop/scribletop-api/modules/auth"
 )
 
-var _ = Describe("auth.EmailValidationService", func() {
-	var v EmailValidationService
+var _ = Describe("auth.EmailValidator", func() {
+	var v EmailValidator
 	salt := "salt"
 	email := "john@example.com"
 	t := time.Now()
 
 	BeforeEach(func() {
-		v = auth.NewEmailValidationService(salt, func() time.Time { return t })
+		v = auth.NewEmailValidator(salt, func() time.Time { return t })
 	})
 
 	It("generates a token correctly", func() {
@@ -35,13 +35,13 @@ var _ = Describe("auth.EmailValidationService", func() {
 	})
 
 	It("fails on invalid tokens", func() {
-		Expect(v.Validate(email, "")).To(Equal(auth.TokenInvalidError))
-		Expect(v.Validate(email, "foo")).To(Equal(auth.TokenInvalidError))
-		Expect(v.Validate(email, fmt.Sprintf("%s%x", "abcdefghijklmnopqrs", sha512.Sum512([]byte("foo"))))).To(Equal(auth.TokenInvalidError))
-		Expect(v.Validate(email, fmt.Sprintf("%s%x", "2111111111111111111", sha512.Sum512([]byte("foo"))))).To(Equal(auth.TokenInvalidError))
+		Expect(v.Validate(email, "")).To(Equal(auth.ErrTokenInvalid))
+		Expect(v.Validate(email, "foo")).To(Equal(auth.ErrTokenInvalid))
+		Expect(v.Validate(email, fmt.Sprintf("%s%x", "abcdefghijklmnopqrs", sha512.Sum512([]byte("foo"))))).To(Equal(auth.ErrTokenInvalid))
+		Expect(v.Validate(email, fmt.Sprintf("%s%x", "2111111111111111111", sha512.Sum512([]byte("foo"))))).To(Equal(auth.ErrTokenInvalid))
 	})
 
 	It("fails on expired tokens", func() {
-		Expect(v.Validate(email, fmt.Sprintf("%s%x", "1111111111111111111", sha512.Sum512([]byte("foo"))))).To(Equal(auth.TokenExpiredError))
+		Expect(v.Validate(email, fmt.Sprintf("%s%x", "1111111111111111111", sha512.Sum512([]byte("foo"))))).To(Equal(auth.ErrTokenExpired))
 	})
 })

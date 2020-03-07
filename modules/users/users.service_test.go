@@ -3,6 +3,7 @@ package users_test
 import (
 	"errors"
 	"fmt"
+	"net/url"
 
 	"golang.org/x/crypto/bcrypt"
 
@@ -22,19 +23,22 @@ var _ = Describe("users.UsersService", func() {
 	var tg *sharedmocks.TagGenerator
 	var es *sharedmocks.EmailSender
 	var ur *mocks.UsersRepository
+	var ev *mocks.EmailValidator
 
 	BeforeEach(func() {
 		tg = new(sharedmocks.TagGenerator)
 		es = new(sharedmocks.EmailSender)
 		ur = new(mocks.UsersRepository)
-		s = users.NewUsersService(TestDB, tg, es, ur)
+		ev = new(mocks.EmailValidator)
+		s = users.NewUsersService(TestDB, tg, es, ur, ev)
 	})
 
 	AfterEach(func() {
+		TestDB.MustExec("TRUNCATE TABLE users RESTART IDENTITY")
 		es.AssertExpectations(GinkgoT())
 		tg.AssertExpectations(GinkgoT())
 		ur.AssertExpectations(GinkgoT())
-		TestDB.MustExec("TRUNCATE TABLE users")
+		ev.AssertExpectations(GinkgoT())
 	})
 
 	Context("creating a user", func() {
@@ -45,8 +49,8 @@ var _ = Describe("users.UsersService", func() {
 				Email: "joe@example.com",
 			},
 		}
-		var generatedTag string
 
+		var generatedTag string
 		var result User
 		var resultErr error
 
@@ -64,9 +68,10 @@ var _ = Describe("users.UsersService", func() {
 			Context("with no problem", func() {
 				BeforeEach(func() {
 					dst := fmt.Sprintf("%s <%s>", user.Tag+"#"+generatedTag, user.Email)
+					ev.On("GenerateToken", user.Email).Return("foo")
 					es.On("SendEmail", dst, "Registration complete!", "new-user", struct {
 						Link string
-					}{Link: "__ROOT_URL__/auth/validate-email"}).Return(nil)
+					}{Link: "__ROOT_URL__/auth/validate-email?token=foo&email=" + url.QueryEscape(user.Email)}).Return(nil)
 				})
 
 				It("adds a tag to the username", func() {
@@ -85,6 +90,12 @@ var _ = Describe("users.UsersService", func() {
 					_ = TestDB.Get(&password, "SELECT password FROM users")
 					Expect(password).NotTo(Equal("password"))
 					Expect(bcrypt.CompareHashAndPassword([]byte(password), []byte("password"))).To(BeNil())
+				})
+
+				It("sets validated to false", func() {
+					var validated bool
+					_ = TestDB.Get(&validated, "SELECT validated FROM users")
+					Expect(validated).To(Equal(false))
 				})
 			})
 

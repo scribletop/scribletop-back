@@ -18,7 +18,7 @@ var _ = Describe("users.UsersRepository", func() {
 	})
 
 	AfterEach(func() {
-		TestDB.MustExec("TRUNCATE TABLE users")
+		TestDB.MustExec("TRUNCATE TABLE users RESTART IDENTITY")
 	})
 
 	Context("FindByEmail", func() {
@@ -38,6 +38,19 @@ var _ = Describe("users.UsersRepository", func() {
 				Expect(err).To(HaveOccurred())
 				Expect(err).To(Equal(sql.ErrNoRows))
 			})
+		})
+	})
+	Context("Validate", func() {
+		It("does not err", func(){
+			TestDB.MustExec("INSERT INTO users(email, tag, password) VALUES ('a', 'b', 'c')")
+			err := r.Validate(1)
+			Expect(err).NotTo(HaveOccurred())
+		})
+
+		It("errs when user does not exist", func(){
+			err := r.Validate(1)
+			Expect(err).To(HaveOccurred())
+			Expect(err).To(Equal(sql.ErrNoRows))
 		})
 	})
 })
