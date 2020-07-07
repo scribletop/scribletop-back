@@ -5,6 +5,11 @@ export const defaultCrudOptions = (type: any): CrudOptions => ({
   model: {
     type,
   },
+  validation: {
+    transformOptions: {
+      ignoreDecorators: true,
+    },
+  },
   params: {
     slug: {
       field: 'slug',
