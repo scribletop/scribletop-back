@@ -1,5 +1,5 @@
 import { Controller, UseGuards } from '@nestjs/common';
-import { Crud, CrudController } from '@nestjsx/crud';
+import { Crud, CrudController, CrudRequest } from '@nestjsx/crud';
 import { SessionGuard } from '../auth/session.guard';
 import { defaultCrudOptions } from '../utils';
 import { User } from './user.entity';
@@ -11,9 +11,8 @@ import { UsersService } from './users.service';
     getManyBase: { decorators: [UseGuards(SessionGuard)] },
     getOneBase: { decorators: [UseGuards(SessionGuard)] },
     updateOneBase: { decorators: [UseGuards(SessionGuard)] },
-    replaceOneBase: { decorators: [UseGuards(SessionGuard)] },
     deleteOneBase: { decorators: [UseGuards(SessionGuard)] },
-    exclude: ['createManyBase'],
+    exclude: ['createManyBase', 'replaceOneBase'],
   },
 })
 @Controller('users')
