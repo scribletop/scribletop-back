@@ -2,7 +2,9 @@ import { NestFactory } from '@nestjs/core';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import * as session from 'express-session';
+import { logger } from 'express-winston';
 import * as passport from 'passport';
+import * as winston from 'winston';
 import { AppModule } from './app.module';
 
 async function bootstrap() {
@@ -14,6 +16,16 @@ async function bootstrap() {
       secret: 'super secret key', // todo change with env
       resave: false,
       saveUninitialized: false,
+    }),
+    logger({
+      transports: [new winston.transports.Console()],
+      format: winston.format.combine(
+        winston.format.colorize(),
+        winston.format.simple(),
+        // winston.format.json(),
+      ),
+      expressFormat: true,
+      colorize: true,
     }),
   );
 
