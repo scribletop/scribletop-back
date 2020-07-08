@@ -1,7 +1,7 @@
+import { ApiProperty } from '@nestjs/swagger';
 import { hash } from 'bcrypt';
 import { Exclude } from 'class-transformer';
 import { IsEmail, IsNotEmpty, IsString } from 'class-validator';
-import { nanoid } from 'nanoid';
 import { BeforeInsert, Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity('users')
@@ -11,20 +11,20 @@ export class User {
   id: number;
 
   @Column({ unique: true })
-  slug: string;
-
-  @Column({ unique: true })
+  @ApiProperty()
   @IsNotEmpty({ always: true })
   @IsString({ always: true })
   @IsEmail({}, { always: true })
   email: string;
 
   @Column({ unique: true })
+  @ApiProperty()
   @IsNotEmpty({ always: true })
   @IsString({ always: true })
   username: string;
 
-  @Column({ select: false })
+  @Column()
+  @ApiProperty({ writeOnly: true })
   @Exclude({ toPlainOnly: true })
   @IsNotEmpty({ always: true })
   @IsString({ always: true })
@@ -32,7 +32,6 @@ export class User {
 
   @BeforeInsert()
   async beforeInsert(): Promise<void> {
-    this.slug = nanoid(12);
     this.password = await hash(this.password, 12);
   }
 }

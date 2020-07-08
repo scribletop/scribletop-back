@@ -1,10 +1,15 @@
-import { Controller } from '@nestjs/common';
+import { Controller, Post } from '@nestjs/common';
 import { Crud, CrudController } from '@nestjsx/crud';
 import { defaultCrudOptions } from '../utils';
 import { User } from './user.entity';
 import { UsersService } from './users.service';
 
-@Crud(defaultCrudOptions(User))
+@Crud({
+  ...defaultCrudOptions(User, 'username'),
+  routes: {
+    exclude: ['createManyBase'],
+  },
+})
 @Controller('users')
 export class UsersController implements CrudController<User> {
   public service: UsersService;

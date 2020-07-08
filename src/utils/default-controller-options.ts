@@ -1,7 +1,10 @@
 import { CrudOptions } from '@nestjsx/crud/lib/interfaces';
 
-// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
-export const defaultCrudOptions = (type: any): CrudOptions => ({
+export const defaultCrudOptions = (
+  // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
+  type: any,
+  slugField = 'slug',
+): CrudOptions => ({
   model: {
     type,
   },
@@ -11,8 +14,8 @@ export const defaultCrudOptions = (type: any): CrudOptions => ({
     },
   },
   params: {
-    slug: {
-      field: 'slug',
+    [slugField]: {
+      field: slugField,
       type: 'string',
       primary: true,
     },
