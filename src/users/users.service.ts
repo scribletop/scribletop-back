@@ -14,10 +14,7 @@ export class UsersService extends TypeOrmCrudService<User> {
   }
 
   async validateEmail(email: string, token: string): Promise<void> {
-    const user = await this.repo.findOne({
-      email,
-      status: UserStatus.EMAIL_NOT_VALIDATED,
-    });
+    const user = await this.getUserWithNotValidatedEmail(email);
     const timestamp = parseInt(token.substr(0, 13));
     const correctToken = this.generateEmailValidationToken(email, timestamp);
     if (!user || new Date(timestamp) < new Date() || correctToken !== token) {
@@ -26,6 +23,13 @@ export class UsersService extends TypeOrmCrudService<User> {
 
     user.status = UserStatus.ACTIVE;
     await this.repo.save(user);
+  }
+
+  async getUserWithNotValidatedEmail(email: string): Promise<User> {
+    return await this.repo.findOne({
+      email,
+      status: UserStatus.EMAIL_NOT_VALIDATED,
+    });
   }
 
   generateEmailValidationToken(

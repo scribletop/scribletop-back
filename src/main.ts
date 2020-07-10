@@ -8,6 +8,7 @@ import * as passport from 'passport';
 import * as winston from 'winston';
 import { AppModule } from './app.module';
 import * as redis from 'redis';
+import { ACLGuard } from './auth/guards/acl.guard';
 
 const RedisStore = connectRedis(session);
 const redisClient = redis.createClient({ port: 32768 });
@@ -15,6 +16,7 @@ const redisClient = redis.createClient({ port: 32768 });
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
   app.disable('x-powered-by');
+  app.useGlobalGuards(new ACLGuard());
 
   app.use(
     session({

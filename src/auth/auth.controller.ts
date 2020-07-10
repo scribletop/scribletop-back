@@ -7,6 +7,7 @@ import {
   UsePipes,
   ValidationPipe,
 } from '@nestjs/common';
+import { Action, Feature } from '@nestjsx/crud';
 import { IsEmail, IsNotEmpty, IsString } from 'class-validator';
 import { User } from '../users/user.entity';
 import { UsersService } from '../users/users.service';
@@ -31,26 +32,34 @@ export class CreateValidationTokenDto {
   email: string;
 }
 
+@Feature('Auth')
 @Controller({ path: 'auth' })
 export class AuthController {
   constructor(private authService: AuthService, private usersService: UsersService) {}
 
   @UseGuards(LocalGuard)
+  @Action('Login')
   @Post('')
   login(@Request() request: { user: Partial<User> }): Partial<User> {
     return { username: request.user.username };
   }
 
   @Post('validate')
+  @Action('Validate-Email')
   @UsePipes(ValidationPipe)
   async validate(@Body() body: ValidateEmailDto): Promise<void> {
     await this.usersService.validateEmail(body.email, body.token);
   }
 
   @Post('validation-token')
+  @Action('Generate-Validation-Token')
   @UsePipes(ValidationPipe)
-  createValidationToken(@Body() body: CreateValidationTokenDto): { token: string } {
+  createValidationToken(@Body() body: CreateValidationTokenDto): void {
+    if (!!this.usersService.getUserWithNotValidatedEmail(body.email)) {
+      return;
+    }
+
     const token = this.usersService.generateEmailValidationToken(body.email);
-    return { token };
+    console.log(token);
   }
 }

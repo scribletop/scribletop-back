@@ -30,7 +30,7 @@ export const defaultCrudOptionsUnderUser = (
   // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
   type: any,
   slugField = 'slug',
-) =>
+): CrudOptions =>
   merge(defaultCrudOptions(type, slugField), {
     query: { join: { members: { eager: true }, 'members.user': { eager: true } } },
     params: {

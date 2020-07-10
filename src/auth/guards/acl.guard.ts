@@ -27,6 +27,10 @@ export class ACLGuard implements CanActivate {
       }
     }
 
+    if (feature === 'Auth') {
+      return !request.isAuthenticated();
+    }
+
     return false;
   }
 
