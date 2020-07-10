@@ -25,8 +25,8 @@ export class UsersService extends TypeOrmCrudService<User> {
     await this.repo.save(user);
   }
 
-  async getUserWithNotValidatedEmail(email: string): Promise<User> {
-    return await this.repo.findOne({
+  getUserWithNotValidatedEmail(email: string): Promise<User> {
+    return this.repo.findOne({
       email,
       status: UserStatus.EMAIL_NOT_VALIDATED,
     });

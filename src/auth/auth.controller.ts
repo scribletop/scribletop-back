@@ -47,8 +47,8 @@ export class AuthController {
   @Post('validate')
   @Action('Validate-Email')
   @UsePipes(ValidationPipe)
-  async validate(@Body() body: ValidateEmailDto): Promise<void> {
-    await this.usersService.validateEmail(body.email, body.token);
+  validate(@Body() body: ValidateEmailDto): Promise<void> {
+    return this.usersService.validateEmail(body.email, body.token);
   }
 
   @Post('validation-token')
