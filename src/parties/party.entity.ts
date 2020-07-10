@@ -1,7 +1,16 @@
 import { ApiProperty } from '@nestjs/swagger';
-import slugify from '@sindresorhus/slugify';
+import * as slugify from '@sindresorhus/slugify';
 import { Exclude } from 'class-transformer';
-import { BeforeInsert, Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { IsNotEmpty, IsString, MinLength } from 'class-validator';
+import {
+  BeforeInsert,
+  Column,
+  Entity,
+  OneToMany,
+  PrimaryGeneratedColumn,
+  RelationId,
+} from 'typeorm';
+import { PartyMember } from './party-member.entity';
 
 @Entity('parties')
 export class Party {
@@ -15,7 +24,13 @@ export class Party {
 
   @Column()
   @ApiProperty()
+  @IsNotEmpty()
+  @IsString()
+  @MinLength(3)
   name: string;
+
+  @OneToMany(() => PartyMember, (member) => member.party, { cascade: true })
+  members: PartyMember[];
 
   @BeforeInsert()
   beforeInsert(): void {

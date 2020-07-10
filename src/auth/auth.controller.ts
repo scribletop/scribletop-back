@@ -1,9 +1,17 @@
-import { Body, Controller, Post, Request, UseGuards, UsePipes, ValidationPipe } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Post,
+  Request,
+  UseGuards,
+  UsePipes,
+  ValidationPipe,
+} from '@nestjs/common';
 import { IsEmail, IsNotEmpty, IsString } from 'class-validator';
 import { User } from '../users/user.entity';
 import { UsersService } from '../users/users.service';
 import { AuthService } from './auth.service';
-import { LocalGuard } from './local.guard';
+import { LocalGuard } from './guards/local.guard';
 
 export class ValidateEmailDto {
   @IsNotEmpty()

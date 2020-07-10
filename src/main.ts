@@ -1,11 +1,16 @@
 import { NestFactory } from '@nestjs/core';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import * as connectRedis from 'connect-redis';
 import * as session from 'express-session';
 import { logger } from 'express-winston';
 import * as passport from 'passport';
 import * as winston from 'winston';
 import { AppModule } from './app.module';
+import * as redis from 'redis';
+
+const RedisStore = connectRedis(session);
+const redisClient = redis.createClient({ port: 32768 });
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
@@ -16,6 +21,7 @@ async function bootstrap() {
       secret: 'super secret key', // todo change with env
       resave: false,
       saveUninitialized: false,
+      store: new RedisStore({ client: redisClient }),
     }),
     logger({
       transports: [new winston.transports.Console()],

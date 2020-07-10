@@ -10,8 +10,7 @@ export class AuthService {
   async validate(username: string, password: string): Promise<Partial<User>> {
     const user = await this.usersService.findOne({ username });
     if (user && compareSync(password, user.password) && user.isActive()) {
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      const { password, id, status, ...result } = user;
+      const { password, status, ...result } = user;
       return result;
     }
 

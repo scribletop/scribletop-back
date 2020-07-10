@@ -1,15 +1,19 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { hash } from 'bcrypt';
 import { Exclude } from 'class-transformer';
-import { IsEmail, IsNotEmpty, IsString } from 'class-validator';
+import { IsEmail, IsNotEmpty, IsString, MinLength } from 'class-validator';
 import {
   BeforeInsert,
   Column,
   CreateDateColumn,
   Entity,
+  ManyToMany,
+  OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
+import { PartyMember } from '../parties/party-member.entity';
+import { Party } from '../parties/party.entity';
 
 export enum UserStatus {
   EMAIL_NOT_VALIDATED,
@@ -42,6 +46,7 @@ export class User {
   @Exclude({ toPlainOnly: true })
   @IsNotEmpty({ always: true })
   @IsString({ always: true })
+  @MinLength(3)
   password: string;
 
   @Column({ type: 'smallint' })
@@ -54,6 +59,9 @@ export class User {
   @UpdateDateColumn()
   dateUpdated: Date;
 
+  @OneToMany(() => PartyMember, (party) => party.user)
+  parties: PartyMember[];
+
   @BeforeInsert()
   async beforeInsert(): Promise<void> {
     this.status = UserStatus.EMAIL_NOT_VALIDATED;
@@ -61,8 +69,6 @@ export class User {
   }
 
   isActive(): boolean {
-    return (
-      this.status === UserStatus.ACTIVE || this.status === UserStatus.INACTIVE
-    );
+    return this.status === UserStatus.ACTIVE || this.status === UserStatus.INACTIVE;
   }
 }
