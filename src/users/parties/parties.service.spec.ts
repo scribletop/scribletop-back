@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
+import { Party } from '../../parties/party.entity';
 import { PartiesService } from './parties.service';
-import { Party } from './party.entity';
 
 describe('PartiesService', () => {
   let service: PartiesService;

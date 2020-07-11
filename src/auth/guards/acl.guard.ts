@@ -5,6 +5,10 @@ import { User } from '../../users/user.entity';
 
 @Injectable()
 export class ACLGuard implements CanActivate {
+  private static isCurrentUser(request: Request): boolean {
+    return (request.user as User).username === request.params.username;
+  }
+
   canActivate(ctx: ExecutionContext): boolean {
     const handler = ctx.getHandler();
     const controller = ctx.getClass();
@@ -32,9 +36,5 @@ export class ACLGuard implements CanActivate {
     }
 
     return false;
-  }
-
-  private static isCurrentUser(request: Request): boolean {
-    return (request.user as User).username === request.params.username;
   }
 }
