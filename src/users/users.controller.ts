@@ -1,7 +1,6 @@
 import { Controller, UseGuards } from '@nestjs/common';
 import { Crud, CrudController, Feature } from '@nestjsx/crud';
 import { merge } from 'lodash';
-import { ACLGuard } from '../auth/guards/acl.guard';
 import { SessionGuard } from '../auth/guards/session.guard';
 import { defaultCrudOptions } from '../utils';
 import { User } from './user.entity';

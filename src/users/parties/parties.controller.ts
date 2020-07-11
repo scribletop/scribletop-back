@@ -1,4 +1,5 @@
 import { Controller, Session, UseGuards } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
 import {
   Crud,
   CrudController,
@@ -8,7 +9,7 @@ import {
   ParsedBody,
   ParsedRequest,
 } from '@nestjsx/crud';
-import { getRepository } from 'typeorm';
+import { getRepository, Repository } from 'typeorm';
 import { SessionGuard } from '../../auth/guards/session.guard';
 import { SessionData } from '../../auth/session/session.serializer';
 import { PartyMember, Role } from '../../parties/party-member.entity';
@@ -22,8 +23,13 @@ import { PartiesService } from './parties.service';
 @Controller('users/:username/parties')
 export class PartiesController {
   public service: PartiesService;
+  @InjectRepository(PartyMember) private repository: Repository<PartyMember>;
 
-  constructor(service: PartiesService) {
+  constructor(
+    service: PartiesService,
+    @InjectRepository(PartyMember) repository: Repository<PartyMember>,
+  ) {
+    this.repository = repository;
     this.service = service;
   }
 
@@ -33,7 +39,7 @@ export class PartiesController {
     @ParsedBody() dto: Party,
     @Session() session: SessionData,
   ): Promise<Party> {
-    const partyMember = getRepository(PartyMember).create();
+    const partyMember = this.repository.create();
     partyMember.userId = session.passport.user.id;
     partyMember.role = Role.dm;
     dto.members = [partyMember];

@@ -69,6 +69,6 @@ export class User {
   }
 
   isActive(): boolean {
-    return this.status === UserStatus.ACTIVE || this.status === UserStatus.INACTIVE;
+    return this.status === UserStatus.ACTIVE;
   }
 }

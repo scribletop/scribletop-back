@@ -74,4 +74,10 @@ describe('ACL Guard', () => {
     request.params = { username: 'bar' };
     expect(guard.canActivate(executionContext)).toBe(false);
   });
+
+  it('returns false by default', () => {
+    feature = 'Foo';
+    action = 'Bar';
+    expect(guard.canActivate(executionContext)).toBe(false);
+  });
 });
