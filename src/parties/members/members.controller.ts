@@ -1,5 +1,4 @@
-import { BadRequestException, Controller, Param, UseGuards } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
+import { Controller, Param, UseGuards } from '@nestjs/common';
 import {
   Crud,
   CrudController,
@@ -11,12 +10,9 @@ import {
   ParsedRequest,
 } from '@nestjsx/crud';
 import { merge } from 'lodash';
-import { Repository } from 'typeorm';
 import { SessionGuard } from '../../auth/guards/session.guard';
-import { User } from '../../users/user.entity';
 import { defaultCrudOptions } from '../../utils';
-import { PartyMember, Role } from '../party-member.entity';
-import { Party } from '../party.entity';
+import { PartyMember } from '../party-member.entity';
 import { CreateMemberDto } from './create-member.dto';
 import { MembersService } from './members.service';
 
@@ -40,12 +36,7 @@ import { MembersService } from './members.service';
 export class MembersController {
   public service: MembersService;
 
-  constructor(
-    service: MembersService,
-    @InjectRepository(User) private userRepository: Repository<User>,
-    @InjectRepository(Party) private partyRepository: Repository<Party>,
-    @InjectRepository(PartyMember) private partyMemberRepository: Repository<PartyMember>,
-  ) {
+  constructor(service: MembersService) {
     this.service = service;
   }
 
@@ -55,28 +46,7 @@ export class MembersController {
     @ParsedBody() dto: CreateMemberDto,
     @Param('slug') slug: string,
   ): Promise<PartyMember> {
-    const [user, party] = await Promise.all([
-      this.userRepository.findOne({ username: dto.username }),
-      this.partyRepository.findOne({ where: { slug }, relations: ['members', 'members.user'] }),
-    ]);
-    if (!user) {
-      throw new BadRequestException('That user does not exist.');
-    }
-
-    if (!!party.findMember(dto.username)) {
-      throw new BadRequestException('That user is already in the party.');
-    }
-
-    const partyMember = this.createPartyMemberFromPartyAndUser(party, user);
-
+    const partyMember = await this.service.createPartyMember(dto.username, slug);
     return (this as CrudController<PartyMember>).createOneBase(req, partyMember);
-  }
-
-  private createPartyMemberFromPartyAndUser(party, user): PartyMember {
-    return this.partyMemberRepository.create({
-      partyId: party.id,
-      userId: user.id,
-      role: Role.player,
-    });
   }
 }
