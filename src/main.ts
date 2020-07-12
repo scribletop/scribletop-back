@@ -5,18 +5,18 @@ import * as connectRedis from 'connect-redis';
 import * as session from 'express-session';
 import { logger } from 'express-winston';
 import * as passport from 'passport';
+import * as redis from 'redis';
 import * as winston from 'winston';
 import { AppModule } from './app.module';
-import * as redis from 'redis';
 import { ACLGuard } from './auth/guards/acl.guard';
 
 const RedisStore = connectRedis(session);
 const redisClient = redis.createClient({ port: 32768 });
 
-async function bootstrap() {
+async function bootstrap(): Promise<void> {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
   app.disable('x-powered-by');
-  app.useGlobalGuards(new ACLGuard());
+  app.useGlobalGuards(app.get(ACLGuard));
 
   app.use(
     session({
@@ -51,4 +51,4 @@ async function bootstrap() {
   await app.listen(3000);
 }
 
-(() => bootstrap())();
+((): Promise<void> => bootstrap())();

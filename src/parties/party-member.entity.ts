@@ -1,5 +1,5 @@
 import { Exclude } from 'class-transformer';
-import { Column, Entity, ManyToOne, PrimaryColumn, RelationId } from 'typeorm';
+import { Column, CreateDateColumn, Entity, ManyToOne, PrimaryColumn, RelationId, UpdateDateColumn } from 'typeorm';
 import { User } from '../users/user.entity';
 import { Party } from './party.entity';
 
@@ -28,4 +28,12 @@ export class PartyMember {
 
   @ManyToOne(() => Party, (party) => party.members)
   party!: Party;
+
+  @CreateDateColumn()
+  @Exclude()
+  dateCreated: Date;
+
+  @UpdateDateColumn()
+  @Exclude()
+  dateUpdated: Date;
 }

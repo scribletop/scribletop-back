@@ -9,11 +9,9 @@ import { UsersService } from './users.service';
 @Crud(
   merge(defaultCrudOptions(User, 'username'), {
     routes: {
-      getManyBase: { decorators: [UseGuards(SessionGuard)] },
       getOneBase: { decorators: [UseGuards(SessionGuard)] },
       updateOneBase: { decorators: [UseGuards(SessionGuard)] },
-      deleteOneBase: { decorators: [UseGuards(SessionGuard)] },
-      exclude: ['createManyBase', 'replaceOneBase'],
+      only: ['createOneBase', 'getOneBase'],
     },
   }),
 )

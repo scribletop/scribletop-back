@@ -8,8 +8,8 @@ import { Party } from './party.entity';
 
 @Crud(
   merge(defaultCrudOptions(Party), {
-    query: { join: { members: {}, 'members.user': {} } },
-    routes: { exclude: ['createOneBase', 'createManyBase'] },
+    query: { join: { members: { eager: true }, 'members.user': { eager: true } } },
+    routes: { only: ['getOneBase'] },
   } as Partial<CrudOptions>),
 )
 @UseGuards(SessionGuard)

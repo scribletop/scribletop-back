@@ -7,13 +7,11 @@ import {
   Column,
   CreateDateColumn,
   Entity,
-  ManyToMany,
   OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
 import { PartyMember } from '../parties/party-member.entity';
-import { Party } from '../parties/party.entity';
 
 export enum UserStatus {
   EMAIL_NOT_VALIDATED,
@@ -54,9 +52,11 @@ export class User {
   status: UserStatus;
 
   @CreateDateColumn()
+  @Exclude()
   dateCreated: Date;
 
   @UpdateDateColumn()
+  @Exclude()
   dateUpdated: Date;
 
   @OneToMany(() => PartyMember, (party) => party.user)

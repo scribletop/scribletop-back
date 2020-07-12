@@ -3,13 +3,15 @@ import { InjectRepository } from '@nestjs/typeorm';
 import {
   Crud,
   CrudController,
+  CrudOptions,
   CrudRequest,
   Feature,
   Override,
   ParsedBody,
   ParsedRequest,
 } from '@nestjsx/crud';
-import { getRepository, Repository } from 'typeorm';
+import { merge } from 'lodash';
+import { Repository } from 'typeorm';
 import { SessionGuard } from '../../auth/guards/session.guard';
 import { SessionData } from '../../auth/session/session.serializer';
 import { PartyMember, Role } from '../../parties/party-member.entity';
@@ -17,7 +19,11 @@ import { Party } from '../../parties/party.entity';
 import { defaultCrudOptionsUnderUser } from '../../utils';
 import { PartiesService } from './parties.service';
 
-@Crud(defaultCrudOptionsUnderUser(Party))
+@Crud(
+  merge<CrudOptions, Partial<CrudOptions>>(defaultCrudOptionsUnderUser(Party), {
+    routes: { only: ['createOneBase', 'getManyBase'] },
+  }),
+)
 @Feature('User-Parties')
 @UseGuards(SessionGuard)
 @Controller('users/:username/parties')

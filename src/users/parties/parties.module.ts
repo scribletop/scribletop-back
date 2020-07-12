@@ -10,4 +10,5 @@ import { PartiesService } from './parties.service';
   providers: [PartiesService],
   controllers: [PartiesController],
 })
-export class PartiesModule {}
+export class PartiesModule {
+}
