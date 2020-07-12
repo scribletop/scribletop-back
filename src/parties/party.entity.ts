@@ -2,6 +2,7 @@ import { ApiProperty } from '@nestjs/swagger';
 import * as slugify from '@sindresorhus/slugify';
 import { Exclude } from 'class-transformer';
 import { IsNotEmpty, IsString, MinLength } from 'class-validator';
+import { nanoid } from 'nanoid';
 import {
   BeforeInsert,
   Column,
@@ -43,7 +44,7 @@ export class Party {
 
   @BeforeInsert()
   beforeInsert(): void {
-    this.slug = slugify(this.name);
+    this.slug = `${nanoid(4)}-${slugify(this.name)}`;
   }
 
   findMember(username: string): PartyMember {

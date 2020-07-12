@@ -29,4 +29,22 @@ describe('PartyEntity', () => {
       expect(() => party.findMember('')).toThrow();
     });
   });
+
+  describe('beforeInsert', () => {
+    it('generates a slug', () => {
+      const party = new Party();
+      party.name = 'My Super Party';
+      party.beforeInsert();
+      expect(party.slug).toMatch('my-super-party');
+    });
+
+    it('generates a non-unique slug', () => {
+      const party = new Party();
+      party.name = 'My Super Party';
+      party.beforeInsert();
+      const oldSlug = party.slug;
+      party.beforeInsert();
+      expect(party.slug).not.toBe(oldSlug);
+    });
+  });
 });
