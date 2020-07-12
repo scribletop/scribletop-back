@@ -216,6 +216,27 @@ describe('ACL Guard', () => {
     expect(await guard.canActivate(executionContext)).toBe(false);
   });
 
+  it('allows anyone to list systems', async () => {
+    feature = 'Systems';
+    action = 'Read-All';
+    expect(await guard.canActivate(executionContext)).toBe(true);
+  });
+
+  it('allows anyone to get a system', async () => {
+    feature = 'Systems';
+    action = 'Read-One';
+    expect(await guard.canActivate(executionContext)).toBe(true);
+  });
+
+  it('forbids anyone to do anything else with a system', async () => {
+    feature = 'Systems';
+    const actions = ['Create-One', 'Create-Many', 'Delete-One', 'Replace-One', 'Update-One'];
+    await actions.reduce(async (prev, act) => {
+      action = act;
+      expect(await guard.canActivate(executionContext)).toBe(false);
+    }, Promise.resolve());
+  });
+
   it('returns false by default', async () => {
     feature = 'Foo';
     action = 'Bar';

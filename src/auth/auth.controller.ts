@@ -55,7 +55,7 @@ export class AuthController {
   @Action('Generate-Validation-Token')
   @UsePipes(ValidationPipe)
   createValidationToken(@Body() body: CreateValidationTokenDto): void {
-    if (!!this.usersService.getUserWithNotValidatedEmail(body.email)) {
+    if (!this.usersService.getUserWithNotValidatedEmail(body.email)) {
       return;
     }
 

@@ -53,7 +53,7 @@ describe('Auth Controller', () => {
 
   describe('createValidationToken', () => {
     it('should not generate a token when user is already validated', () => {
-      usersService.getUserWithNotValidatedEmail = jest.fn().mockReturnValue({});
+      usersService.getUserWithNotValidatedEmail = jest.fn().mockReturnValue(null);
       usersService.generateEmailValidationToken = jest.fn();
 
       controller.createValidationToken({ email: 'bar@email.com' });
@@ -62,7 +62,7 @@ describe('Auth Controller', () => {
     });
 
     it('should generate a token when user is not validated yet', () => {
-      usersService.getUserWithNotValidatedEmail = jest.fn().mockReturnValue(null);
+      usersService.getUserWithNotValidatedEmail = jest.fn().mockReturnValue({});
       usersService.generateEmailValidationToken = jest.fn().mockReturnValue('token');
       const spy = jest.spyOn(console, 'log').mockImplementation();
 

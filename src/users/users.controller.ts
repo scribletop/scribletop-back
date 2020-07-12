@@ -10,7 +10,6 @@ import { UsersService } from './users.service';
   merge(defaultCrudOptions(User, 'username'), {
     routes: {
       getOneBase: { decorators: [UseGuards(SessionGuard)] },
-      updateOneBase: { decorators: [UseGuards(SessionGuard)] },
       only: ['createOneBase', 'getOneBase'],
     },
   }),

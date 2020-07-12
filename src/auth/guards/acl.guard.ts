@@ -17,7 +17,7 @@ export class ACLGuard implements CanActivate {
   }
 
   private static getUser(request: Request): User {
-    return request.user as User;
+    return (request.user || {}) as User;
   }
 
   async canActivate(ctx: ExecutionContext): Promise<boolean> {
@@ -77,6 +77,11 @@ export class ACLGuard implements CanActivate {
       return true;
     }
 
+    if (feature === 'Systems') {
+      return action === 'Read-One' || action === 'Read-All';
+    }
+
+    console.log('ACL NOT FOUND');
     return false;
   }
 

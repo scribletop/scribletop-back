@@ -4,8 +4,9 @@ import { AuthModule } from './auth/auth.module';
 import * as ormConfig from './ormconfig';
 import { PartiesModule } from './parties/parties.module';
 import { UsersModule } from './users/users.module';
+import { SystemsModule } from './systems/systems.module';
 
 @Module({
-  imports: [TypeOrmModule.forRoot(ormConfig), PartiesModule, UsersModule, AuthModule],
+  imports: [TypeOrmModule.forRoot(ormConfig), PartiesModule, UsersModule, AuthModule, SystemsModule],
 })
 export class AppModule {}
