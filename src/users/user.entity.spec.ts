@@ -28,7 +28,7 @@ describe('UserEntity', () => {
       expect(user.status).toBe(UserStatus.EMAIL_NOT_VALIDATED);
     });
 
-    it('should hash the user\'s password', async () => {
+    it("should hash the user's password", async () => {
       const user = new User();
       user.password = 'password';
       await user.beforeInsert();

@@ -10,8 +10,7 @@ import { User } from '../../users/user.entity';
 // todo refactor this into multiple classes?
 @Injectable()
 export class ACLGuard implements CanActivate {
-  constructor(@InjectConnection() private connection: Connection) {
-  }
+  constructor(@InjectConnection() private connection: Connection) {}
 
   private static isCurrentUser(request: Request): boolean {
     return ACLGuard.getUser(request).username === request.params.username;
@@ -53,7 +52,7 @@ export class ACLGuard implements CanActivate {
     }
 
     if (feature === 'Party-Users') {
-      console.log((request.params));
+      console.log(request.params);
       if (
         action === 'Delete-One' &&
         request.params.username === ACLGuard.getUser(request).username

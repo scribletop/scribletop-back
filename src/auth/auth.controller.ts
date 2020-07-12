@@ -1,4 +1,12 @@
-import { Body, Controller, Post, Request, UseGuards, UsePipes, ValidationPipe } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Post,
+  Request,
+  UseGuards,
+  UsePipes,
+  ValidationPipe,
+} from '@nestjs/common';
 import { Action, Feature } from '@nestjsx/crud';
 import { IsEmail, IsNotEmpty, IsString } from 'class-validator';
 import { User } from '../users/user.entity';
@@ -27,8 +35,7 @@ export class CreateValidationTokenDto {
 @Feature('Auth')
 @Controller({ path: 'auth' })
 export class AuthController {
-  constructor(private authService: AuthService, private usersService: UsersService) {
-  }
+  constructor(private authService: AuthService, private usersService: UsersService) {}
 
   @UseGuards(LocalGuard)
   @Action('Login')

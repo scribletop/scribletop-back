@@ -12,5 +12,4 @@ import { LocalStrategy } from './strategies/local.strategy';
   providers: [AuthService, LocalStrategy, SessionSerializer, ACLGuard],
   controllers: [AuthController],
 })
-export class AuthModule {
-}
+export class AuthModule {}

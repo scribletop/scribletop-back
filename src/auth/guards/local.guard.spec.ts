@@ -1,17 +1,17 @@
 import { UnauthorizedException } from '@nestjs/common';
 
 abstract class AuthGuard {
-  canActivate() {
+  canActivate(): boolean {
     return canActivate();
   }
 
-  logIn(r) {
+  logIn(r): void {
     return logIn(r);
   }
 }
 
 jest.mock('@nestjs/passport', () => ({
-  AuthGuard: () => AuthGuard,
+  AuthGuard: (): typeof AuthGuard => AuthGuard,
 }));
 
 // We need to require because passport strategy needs

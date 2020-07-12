@@ -8,5 +8,4 @@ import { UsersModule } from './users/users.module';
 @Module({
   imports: [TypeOrmModule.forRoot(ormConfig), PartiesModule, UsersModule, AuthModule],
 })
-export class AppModule {
-}
+export class AppModule {}

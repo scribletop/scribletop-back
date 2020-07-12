@@ -8,11 +8,11 @@ export interface SessionData extends Express.SessionData {
 
 @Injectable()
 export class SessionSerializer extends PassportSerializer {
-  serializeUser(user: User, done: (err: Error, user: User) => void): any {
+  serializeUser(user: User, done: (err: Error, user: User) => void): void {
     done(null, user);
   }
 
-  deserializeUser(payload: string, done: (err: Error, payload: string) => void): any {
+  deserializeUser(payload: string, done: (err: Error, payload: string) => void): void {
     done(null, payload);
   }
 }
