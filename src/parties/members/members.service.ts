@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { BadRequestException, ForbiddenException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { TypeOrmCrudService } from '@nestjsx/crud-typeorm';
 import { Repository } from 'typeorm';
@@ -22,6 +22,12 @@ export class MembersService extends TypeOrmCrudService<PartyMember> {
     }
   }
 
+  private static verifyPartyExists(party: Party): void {
+    if (!party) {
+      throw new ForbiddenException();
+    }
+  }
+
   private static verifyUserIsNotMemberOfParty(party: Party, username: string): void {
     if (!!party.findMember(username)) {
       throw new BadRequestException('That user is already in the party.');
@@ -31,6 +37,7 @@ export class MembersService extends TypeOrmCrudService<PartyMember> {
   public async createPartyMember(username: string, slug: string): Promise<PartyMember> {
     const { user, party } = await this.getUserAndPartyFromRequest(username, slug);
     MembersService.verifyUserExists(user);
+    MembersService.verifyPartyExists(party);
     MembersService.verifyUserIsNotMemberOfParty(party, username);
 
     return this.createPartyMemberFromPartyAndUser(party, user);
