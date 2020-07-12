@@ -26,7 +26,7 @@ export class System {
   @IsString()
   description: string;
 
-  @Column()
+  @Column({ nullable: true })
   @ApiProperty()
   @IsUrl()
   image: string;
