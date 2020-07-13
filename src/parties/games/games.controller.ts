@@ -11,9 +11,9 @@ import {
 } from '@nestjsx/crud';
 import { merge } from 'lodash';
 import { SessionGuard } from '../../auth/guards/session.guard';
+import { Game } from '../../games/game.entity';
 import { defaultCrudOptions } from '../../utils';
 import { CreateGameDto } from './create-game.dto';
-import { Game } from '../../games/game.entity';
 import { GamesService } from './games.service';
 
 @Crud(
@@ -25,7 +25,7 @@ import { GamesService } from './games.service';
       partySlug: { field: 'party.slug', type: 'string' },
     },
     dto: { create: CreateGameDto },
-    query: { join: { party: { eager: true }, world: { eager: true } } },
+    query: { join: { party: { eager: true }, world: { eager: true }, system: { eager: true } } },
   }),
 )
 @UseGuards(SessionGuard)

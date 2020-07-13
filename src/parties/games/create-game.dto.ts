@@ -11,5 +11,9 @@ export class CreateGameDto {
   world: string;
 
   @IsNotEmpty({ always: true })
+  @IsString({ always: true })
+  system: string;
+
+  @IsNotEmpty({ always: true })
   type: number;
 }
