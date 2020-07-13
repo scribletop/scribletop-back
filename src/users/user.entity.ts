@@ -37,6 +37,7 @@ export class User {
   @ApiProperty()
   @IsNotEmpty({ always: true })
   @IsString({ always: true })
+  @MinLength(3, { always: true })
   username: string;
 
   @Column()
@@ -44,7 +45,7 @@ export class User {
   @Exclude({ toPlainOnly: true })
   @IsNotEmpty({ always: true })
   @IsString({ always: true })
-  @MinLength(3)
+  @MinLength(6, { always: true })
   password: string;
 
   @Column({ type: 'smallint' })
@@ -59,7 +60,10 @@ export class User {
   @Exclude()
   dateUpdated: Date;
 
-  @OneToMany(() => PartyMember, (party) => party.user)
+  @OneToMany(
+    /* istanbul ignore next */ () => PartyMember,
+    /* istanbul ignore next */ (party) => party.user,
+  )
   parties: PartyMember[];
 
   @BeforeInsert()

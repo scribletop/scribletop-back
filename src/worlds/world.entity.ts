@@ -2,10 +2,11 @@ import { ApiProperty } from '@nestjs/swagger';
 import * as slugify from '@sindresorhus/slugify';
 import { Exclude } from 'class-transformer';
 import { IsNotEmpty, IsOptional, IsString, IsUrl, MinLength } from 'class-validator';
+import { nanoid } from 'nanoid';
 import { BeforeInsert, Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 
-@Entity('systems')
-export class System {
+@Entity('worlds')
+export class World {
   @PrimaryGeneratedColumn()
   @Exclude()
   id: number;
@@ -29,12 +30,12 @@ export class System {
 
   @Column({ nullable: true })
   @ApiProperty()
-  @IsOptional()
+  @IsOptional({ always: true })
   @IsUrl({}, { always: true })
   image: string;
 
   @BeforeInsert()
   beforeInsert(): void {
-    this.slug = slugify(this.name);
+    this.slug = `${nanoid(4)}-${slugify(this.name)}`;
   }
 }

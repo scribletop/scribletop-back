@@ -12,6 +12,7 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
+import { Game } from '../games/game.entity';
 import { PartyMember } from './party-member.entity';
 
 @Entity('parties')
@@ -26,13 +27,20 @@ export class Party {
 
   @Column()
   @ApiProperty()
-  @IsNotEmpty()
-  @IsString()
+  @IsNotEmpty({ always: true })
+  @IsString({ always: true })
   @MinLength(3)
   name: string;
 
-  @OneToMany(() => PartyMember, (member) => member.party, { cascade: true })
+  @OneToMany(
+    /* istanbul ignore next */ () => PartyMember,
+    /* istanbul ignore next */ (member) => member.party,
+    { cascade: true },
+  )
   members: PartyMember[];
+
+  @OneToMany(/* istanbul ignore next */ () => Game, /* istanbul ignore next */ (game) => game.party)
+  games: Game[];
 
   @CreateDateColumn()
   @Exclude()

@@ -38,7 +38,7 @@ describe('PartyEntity', () => {
       expect(party.slug).toMatch('my-super-party');
     });
 
-    it('generates a non-unique slug', () => {
+    it('generates a unique slug', () => {
       const party = new Party();
       party.name = 'My Super Party';
       party.beforeInsert();

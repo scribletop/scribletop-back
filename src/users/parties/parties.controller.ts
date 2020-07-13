@@ -24,10 +24,10 @@ import { PartiesService } from './parties.service';
     routes: { only: ['createOneBase', 'getManyBase'] },
   }),
 )
-@Feature('User-Parties')
 @UseGuards(SessionGuard)
+@Feature('User-Parties')
 @Controller('users/:username/parties')
-export class PartiesController {
+export class PartiesController implements CrudController<Party> {
   public service: PartiesService;
   @InjectRepository(PartyMember) private repository: Repository<PartyMember>;
 

@@ -72,7 +72,7 @@ describe('MembersService', () => {
       });
     });
 
-    it('returns a party member when it works well', async () => {
+    it('returns a party member when it works', async () => {
       const expected = {};
       const party = new Party();
       party.id = 1;

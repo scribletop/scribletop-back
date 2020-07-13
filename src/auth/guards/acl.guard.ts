@@ -52,7 +52,6 @@ export class ACLGuard implements CanActivate {
     }
 
     if (feature === 'Party-Users') {
-      console.log(request.params);
       if (
         action === 'Delete-One' &&
         request.params.username === ACLGuard.getUser(request).username
@@ -70,15 +69,29 @@ export class ACLGuard implements CanActivate {
         return false;
       }
 
-      if (action === 'Delete-One') {
-        return member.role === Role.dm;
+      return action === 'Delete-One' ? member.role === Role.dm : true;
+    }
+
+    if (feature === 'Party-Games') {
+      const party = await this.getParty(request);
+      if (!party) {
+        return false;
       }
 
-      return true;
+      const member = party.findMember(ACLGuard.getUser(request).username);
+      if (!member) {
+        return false;
+      }
+
+      return action === 'Create-One' ? member.role === Role.dm : true;
     }
 
     if (feature === 'Systems') {
-      return action === 'Read-One' || action === 'Read-All';
+      return action === 'Read-One' || action === 'Read-All' || action === 'Create-One';
+    }
+
+    if (feature === 'Worlds') {
+      return action === 'Read-One' || action === 'Read-All' || action === 'Create-One';
     }
 
     console.log('ACL NOT FOUND');
@@ -88,7 +101,10 @@ export class ACLGuard implements CanActivate {
   private async getParty(request: Request): Promise<Party> {
     const parties = await this.connection
       .getRepository(Party)
-      .find({ where: { slug: request.params.slug }, relations: ['members', 'members.user'] });
+      .find({
+        where: { slug: request.params.partySlug || request.params.slug },
+        relations: ['members', 'members.user'],
+      });
     return parties[0];
   }
 }

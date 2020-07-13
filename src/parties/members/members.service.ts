@@ -44,7 +44,7 @@ export class MembersService extends TypeOrmCrudService<PartyMember> {
   }
 
   private async getUserAndPartyFromRequest(
-    username,
+    username: string,
     slug: string,
   ): Promise<{ user: User; party: Party }> {
     const [user, party] = await Promise.all([
@@ -54,7 +54,7 @@ export class MembersService extends TypeOrmCrudService<PartyMember> {
     return { user, party };
   }
 
-  private createPartyMemberFromPartyAndUser(party, user): PartyMember {
+  private createPartyMemberFromPartyAndUser(party: Party, user: User): PartyMember {
     return this.partyMemberRepository.create({
       partyId: party.id,
       userId: user.id,

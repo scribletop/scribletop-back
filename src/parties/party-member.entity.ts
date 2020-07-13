@@ -19,22 +19,28 @@ export enum Role {
 @Entity('party_user')
 export class PartyMember {
   @PrimaryColumn()
-  @RelationId((pm: PartyMember) => pm.party)
+  @RelationId(/* istanbul ignore next */ (pm: PartyMember) => pm.party)
   @Exclude({ toPlainOnly: true })
   partyId!: number;
 
   @PrimaryColumn()
-  @RelationId((pm: PartyMember) => pm.user)
+  @RelationId(/* istanbul ignore next */ (pm: PartyMember) => pm.user)
   @Exclude({ toPlainOnly: true })
   userId!: number;
 
   @Column({ type: 'smallint' })
   role!: Role;
 
-  @ManyToOne(() => User, (user) => user.parties)
+  @ManyToOne(
+    /* istanbul ignore next */ () => User,
+    /* istanbul ignore next */ (user) => user.parties,
+  )
   user!: User;
 
-  @ManyToOne(() => Party, (party) => party.members)
+  @ManyToOne(
+    /* istanbul ignore next */ () => Party,
+    /* istanbul ignore next */ (party) => party.members,
+  )
   party!: Party;
 
   @CreateDateColumn()

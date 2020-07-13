@@ -30,10 +30,10 @@ import { MembersService } from './members.service';
     query: { join: { party: { eager: true }, user: { eager: true } } },
   }),
 )
-@Feature('Party-Users')
 @UseGuards(SessionGuard)
+@Feature('Party-Users')
 @Controller('parties/:slug/members')
-export class MembersController {
+export class MembersController implements CrudController<PartyMember> {
   public service: MembersService;
 
   constructor(service: MembersService) {
